@@ -187,6 +187,8 @@ app.use((req, res, next) => {
             console.log('Extracted session ID from cookie:', sessionId);
             console.log('Current session ID from middleware:', req.session.id);
             console.log('Session IDs match:', sessionId === req.session.id);
+            console.log('Full cookie with signature:', sessionIdWithSig);
+            console.log('Has signature (contains dot):', sessionIdWithSig.includes('.'));
           }
         } catch (e) {
           console.log('Error decoding session cookie:', e.message);
@@ -291,6 +293,59 @@ app.get('/debug-sessions', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Session store debug error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Test endpoint to manually test session store operations
+app.get('/test-store', async (req, res) => {
+  try {
+    console.log('=== TESTING SESSION STORE OPERATIONS ===');
+    
+    const testSessionId = 'test-session-123';
+    const testSessionData = {
+      cookie: { maxAge: 86400000, httpOnly: true, secure: true },
+      userId: 999,
+      username: 'test-user'
+    };
+    
+    // Test SET operation
+    console.log('Testing store.set...');
+    await new Promise((resolve, reject) => {
+      store.set(testSessionId, testSessionData, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    console.log('✅ store.set successful');
+    
+    // Test GET operation
+    console.log('Testing store.get...');
+    const retrievedSession = await new Promise((resolve, reject) => {
+      store.get(testSessionId, (err, session) => {
+        if (err) reject(err);
+        else resolve(session);
+      });
+    });
+    console.log('✅ store.get successful:', retrievedSession);
+    
+    // Test DESTROY operation
+    console.log('Testing store.destroy...');
+    await new Promise((resolve, reject) => {
+      store.destroy(testSessionId, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    console.log('✅ store.destroy successful');
+    
+    res.json({
+      message: 'Session store test completed successfully',
+      testData: testSessionData,
+      retrievedData: retrievedSession
+    });
+  } catch (error) {
+    console.error('❌ Session store test error:', error);
     res.status(500).json({ error: error.message });
   }
 });
