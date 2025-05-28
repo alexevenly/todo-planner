@@ -232,63 +232,35 @@ justify-content: space-between;
 padding: 10px !important;
 }
 
-/* Fix week number column if it appears */
-.fc-daygrid-week-number {
-display: none !important;
+/* Simple calendar fixes */
+.fc-col-header-cell {
+text-align: center !important;
+padding: 12px 8px !important;
+font-weight: bold !important;
 }
 
+.fc-daygrid-day {
+border: 1px solid #BBB !important;
+}
+
+.fc-daygrid-day-frame {
+min-height: 100px !important;
+padding: 8px !important;
+}
+
+.fc-daygrid-day-number {
+padding: 4px !important;
+text-align: center !important;
+font-weight: bold !important;
+}
+
+/* Hide week numbers completely */
+.fc-daygrid-week-number,
 .fc-week-number {
 display: none !important;
 }
 
-/* Ensure calendar doesn't duplicate */
-.calendar-container .fc {
-position: relative !important;
-overflow: hidden !important;
-}
-
-.fc-view-harness {
-overflow: hidden !important;
-}
-
-/* Ensure proper calendar structure */
-.fc-scrollgrid-sync-table {
-width: 100% !important;
-table-layout: fixed !important;
-}
-
-/* Fix day tile widths to be consistent */
-.fc-col-header-cell {
-width: 14.28571% !important;
-text-align: center !important;
-}
-
-.fc-daygrid-day {
-width: 14.28571% !important;
-min-width: 0 !important;
-max-width: none !important;
-}
-
-.fc-scrollgrid-sync-table td {
-width: 14.28571% !important;
-}
-
-.fc-daygrid-day-frame {
-width: 100% !important;
-}
-
-/* Prevent calendar from creating multiple instances */
-.fc-view-harness-active {
-position: relative !important;
-}
-
-.fc-daygrid-body {
-width: 100% !important;
-}
-
-.fc-scrollgrid-section-body > td {
-width: 14.28571% !important;
-}
+/* Ensure calendar doesn't duplicate - removed problematic rules */
 
 /**pie chart**/
 #pie_chart_overlay {

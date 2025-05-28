@@ -159,96 +159,18 @@ input:checked + .slider .slider-text.modern {
   opacity: 0.5 !important;
 }
 
-/* Fix calendar alignment issues */
-.fc-scrollgrid {
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-}
-
+/* Simple calendar fixes - don't force layouts */
 .fc-col-header-cell {
   text-align: center !important;
-  vertical-align: middle !important;
-  padding: 8px 4px !important;
-  width: 14.28571% !important; /* Ensure equal width for all 7 days */
-}
-
-.fc-daygrid-day {
-  width: 14.28571% !important; /* Ensure equal width for all 7 days */
-  min-width: 0 !important;
-  max-width: none !important;
-}
-
-.fc-daygrid-day-frame {
-  min-height: 100px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  width: 100% !important;
-}
-
-.fc-daygrid-day-number {
-  padding: 4px !important;
-  text-align: center !important;
-  width: 100% !important;
-}
-
-/* Ensure proper calendar structure */
-.fc-scrollgrid-sync-table {
-  width: 100% !important;
-  table-layout: fixed !important; /* Force equal column widths */
-}
-
-.fc-scrollgrid-sync-table td {
-  width: 14.28571% !important; /* Ensure equal width for all 7 days */
-}
-
-.fc-col-header {
-  background: var(--bg-secondary) !important;
-}
-
-.fc-col-header-cell-cushion {
-  padding: 8px !important;
+  padding: 12px 8px !important;
   font-weight: 600 !important;
+  background: var(--bg-secondary) !important;
   color: var(--text-primary) !important;
-}
-
-/* Fix week number column if it appears */
-.fc-daygrid-week-number {
-  display: none !important;
-}
-
-.fc-week-number {
-  display: none !important;
-}
-
-/* Ensure calendar doesn't duplicate */
-.calendar-container .fc {
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.fc-view-harness {
-  overflow: hidden !important;
-}
-
-/* Prevent calendar from creating multiple instances */
-.fc-view-harness-active {
-  position: relative !important;
-}
-
-.fc-daygrid-body {
-  width: 100% !important;
-}
-
-.fc-scrollgrid-section-body > td {
-  width: 14.28571% !important;
 }
 
 .fc-daygrid-day {
   transition: all 0.3s ease;
-  border-radius: var(--radius-sm) !important;
-  margin: 1px !important;
+  border: 1px solid var(--border-color) !important;
 }
 
 .fc-daygrid-day:hover {
@@ -256,25 +178,48 @@ input:checked + .slider .slider-text.modern {
   transform: scale(1.02);
 }
 
+.fc-daygrid-day-frame {
+  min-height: 100px !important;
+  padding: 8px !important;
+}
+
+.fc-daygrid-day-number {
+  padding: 4px !important;
+  text-align: center !important;
+  font-weight: 500 !important;
+}
+
 .fc-day-today {
   background: linear-gradient(135deg, var(--warning-color), #d97706) !important;
   color: white !important;
-  border-radius: var(--radius-md) !important;
-  margin: 2px !important;
   border: 2px solid #fbbf24 !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+/* Hide week numbers completely */
+.fc-daygrid-week-number,
+.fc-week-number {
+  display: none !important;
 }
 
 /* Custom styles for days with data */
 .fc-daygrid-day[style*="lightgreen"] {
   background: linear-gradient(135deg, var(--success-color), #059669) !important;
   color: white !important;
-  border-radius: var(--radius-sm) !important;
+}
+
+.fc-daygrid-day[style*="lightgreen"] .fc-daygrid-day-number {
+  color: white !important;
+  font-weight: 600 !important;
 }
 
 .fc-daygrid-day[style*="#C0C0C0"] {
   background: linear-gradient(135deg, var(--bg-tertiary), #cbd5e1) !important;
   color: var(--text-secondary) !important;
-  border-radius: var(--radius-sm) !important;
 }
 
 .fc-daygrid-day[style*="lightgreen"]:hover {
