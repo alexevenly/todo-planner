@@ -155,6 +155,35 @@ app.use(session({
   }
 }));
 
+// Middleware to clear invalid unsigned session cookies
+app.use((req, res, next) => {
+  if (req.headers.cookie && req.headers.cookie.includes('connect.sid=')) {
+    const cookies = req.headers.cookie.split(';');
+    const sessionCookie = cookies.find(cookie => cookie.trim().startsWith('connect.sid='));
+    
+    if (sessionCookie) {
+      const cookieValue = sessionCookie.split('=')[1];
+      try {
+        const decodedValue = decodeURIComponent(cookieValue);
+        
+        // Check if it's a signed cookie that lacks a signature
+        if (decodedValue.startsWith('s:') && !decodedValue.includes('.')) {
+          console.log('🧹 Clearing invalid unsigned session cookie:', decodedValue);
+          res.clearCookie('connect.sid', {
+            path: '/',
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: true,
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+          });
+        }
+      } catch (e) {
+        console.log('Error checking session cookie:', e.message);
+      }
+    }
+  }
+  next();
+});
+
 // Debug middleware to track session creation vs loading
 app.use((req, res, next) => {
   if (req.session && req.url !== '/favicon.ico' && !req.url.includes('.css') && !req.url.includes('.js')) {
