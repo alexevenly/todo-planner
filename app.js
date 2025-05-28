@@ -328,45 +328,53 @@ app.post('/auth/login', async (req, res) => {
     // Create session
     console.log('Creating session...');
     
-    // Regenerate session to ensure fresh session ID and cookie
-    req.session.regenerate((err) => {
+    // Set session data directly without regeneration first
+    req.session.userId = user.id;
+    req.session.username = user.username;
+    
+    console.log('Session ID before save:', req.session.id);
+    console.log('Session data before save:', { userId: req.session.userId, username: req.session.username });
+
+    // Explicitly save the session to ensure cookie is set
+    req.session.save((err) => {
       if (err) {
-        console.error('❌ Session regeneration error:', err);
-        return res.status(500).json({ error: 'Session creation failed' });
+        console.error('❌ Session save error:', err);
+        return res.status(500).json({ error: 'Session save failed' });
       }
       
-      console.log('✅ Session regenerated');
+      console.log('✅ Session saved successfully');
+      console.log('Session ID after save:', req.session.id);
+      console.log('Session data saved:', { userId: req.session.userId, username: req.session.username });
       
-      // Set session data
-      req.session.userId = user.id;
-      req.session.username = user.username;
+      // Ensure the session cookie is set in the response
+      const sessionCookieName = req.sessionStore.name || 'connect.sid';
+      const sessionCookieValue = req.sessionID;
       
-      console.log('Session ID:', req.session.id);
-
-      // Explicitly save the session to ensure cookie is set
-      req.session.save((err) => {
-        if (err) {
-          console.error('❌ Session save error:', err);
-          return res.status(500).json({ error: 'Session save failed' });
+      // Check if cookie is already set by middleware
+      const existingCookie = res.getHeader('Set-Cookie');
+      if (!existingCookie || !existingCookie.toString().includes(sessionCookieName)) {
+        console.log('Setting session cookie manually as fallback');
+        const cookieOptions = req.session.cookie;
+        const cookieString = `${sessionCookieName}=s%3A${sessionCookieValue}; Path=${cookieOptions.path || '/'}; HttpOnly; Max-Age=${cookieOptions.maxAge / 1000}${cookieOptions.secure ? '; Secure' : ''}${cookieOptions.sameSite ? `; SameSite=${cookieOptions.sameSite}` : ''}`;
+        res.setHeader('Set-Cookie', cookieString);
+        console.log('Manual cookie set:', cookieString);
+      } else {
+        console.log('Session cookie already set by middleware');
+      }
+      
+      const responseData = { 
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name
         }
-        
-        console.log('✅ Session saved successfully');
-        console.log('Session data saved:', { userId: req.session.userId, username: req.session.username });
-        
-        const responseData = { 
-          message: 'Login successful',
-          user: {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            first_name: user.first_name,
-            last_name: user.last_name
-          }
-        };
-        
-        console.log('✅ Login successful, sending response');
-        res.json(responseData);
-      });
+      };
+      
+      console.log('✅ Login successful, sending response');
+      res.json(responseData);
     });
   } catch (error) {
     console.error('❌ Login error:', error);
