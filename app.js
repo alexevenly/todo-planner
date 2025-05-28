@@ -82,38 +82,19 @@ console.log('Frontend URL env var:', process.env.FRONTEND_URL);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware
+// Request logging middleware (simplified)
 app.use((req, res, next) => {
-  console.log(`\n=== INCOMING REQUEST ===`);
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  console.log('User-Agent:', req.headers['user-agent']);
-  console.log('Origin:', req.headers.origin);
-  console.log('Referer:', req.headers.referer);
-  console.log('Cookie header:', req.headers.cookie);
-  console.log('Content-Type:', req.headers['content-type']);
-  
-  // Parse session cookie specifically
-  if (req.headers.cookie) {
-    const sessionCookie = req.headers.cookie
-      .split(';')
-      .find(cookie => cookie.trim().startsWith('connect.sid='));
-    console.log('Session cookie found:', !!sessionCookie);
-    if (sessionCookie) {
-      console.log('Session cookie value:', sessionCookie.trim());
+  // Only log important requests, not static files
+  if (!req.url.includes('.css') && !req.url.includes('.js') && !req.url.includes('.ico')) {
+    console.log(`\n=== ${req.method} ${req.url} ===`);
+    console.log('Session cookie found:', !!req.headers.cookie?.includes('connect.sid'));
+    if (req.headers.cookie?.includes('connect.sid')) {
+      const sessionCookie = req.headers.cookie
+        .split(';')
+        .find(cookie => cookie.trim().startsWith('connect.sid='));
+      console.log('Session cookie:', sessionCookie?.trim().substring(0, 50) + '...');
     }
-  } else {
-    console.log('❌ No cookies in request');
   }
-  
-  // Log response cookies when they're set
-  const originalJson = res.json;
-  res.json = function(data) {
-    console.log('=== RESPONSE HEADERS ===');
-    console.log('Set-Cookie:', res.getHeaders()['set-cookie']);
-    console.log('Response status:', res.statusCode);
-    return originalJson.call(this, data);
-  };
-  
   next();
 });
 
@@ -259,10 +240,6 @@ app.post('/auth/register', async (req, res) => {
 app.post('/auth/login', async (req, res) => {
   try {
     console.log('=== LOGIN ATTEMPT ===');
-    console.log('Request body:', { username: req.body.username, password: '[REDACTED]' });
-    console.log('Request headers:', JSON.stringify(req.headers, null, 2));
-    console.log('Session before login:', req.session);
-    
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -282,7 +259,7 @@ app.post('/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    console.log('✅ User found:', { id: user.id, username: user.username, email: user.email, is_active: user.is_active });
+    console.log('✅ User found:', user.username);
 
     if (!user.is_active) {
       console.log('❌ User account is disabled:', user.id);
@@ -290,7 +267,6 @@ app.post('/auth/login', async (req, res) => {
     }
 
     // Verify password
-    console.log('Verifying password...');
     const isValidPassword = await auth.verifyPassword(password, user.password_hash);
     
     if (!isValidPassword) {
@@ -321,7 +297,6 @@ app.post('/auth/login', async (req, res) => {
       req.session.userId = user.id;
       req.session.username = user.username;
       
-      console.log('Session after login:', req.session);
       console.log('Session ID:', req.session.id);
 
       // Explicitly save the session to ensure cookie is set
@@ -332,6 +307,23 @@ app.post('/auth/login', async (req, res) => {
         }
         
         console.log('✅ Session saved successfully');
+        
+        // Manually set the session cookie if it's not being set automatically
+        const sessionId = req.session.id;
+        const cookieName = 'connect.sid';
+        const cookieValue = `s:${sessionId}`;
+        const cookieOptions = [
+          `Path=/`,
+          `HttpOnly`,
+          `Max-Age=86400`,
+          process.env.NODE_ENV === 'production' ? 'Secure' : '',
+          process.env.NODE_ENV === 'production' ? 'SameSite=None' : 'SameSite=Lax'
+        ].filter(Boolean).join('; ');
+        
+        const fullCookie = `${cookieName}=${cookieValue}; ${cookieOptions}`;
+        
+        console.log('Setting session cookie manually:', fullCookie);
+        res.setHeader('Set-Cookie', fullCookie);
         
         const responseData = { 
           message: 'Login successful',
@@ -344,12 +336,7 @@ app.post('/auth/login', async (req, res) => {
           }
         };
         
-        console.log('✅ Login successful, sending response:', responseData);
-        
-        // Log response headers and cookies being set
-        console.log('Response headers being set:');
-        console.log('Set-Cookie header will be:', res.getHeaders()['set-cookie']);
-        
+        console.log('✅ Login successful, sending response with cookie');
         res.json(responseData);
       });
     });
@@ -400,26 +387,18 @@ app.get('/auth/user', auth.requireAuth, (req, res) => {
 app.get('/dates', auth.requireAuth, async (req, res) => {
   try {
     console.log('=== /dates ENDPOINT ===');
-    console.log('Request URL:', req.url);
-    console.log('Request method:', req.method);
-    console.log('Session exists:', !!req.session);
-    console.log('Session userId:', req.session?.userId);
-    console.log('User object:', req.user);
-    console.log('Request headers:', JSON.stringify(req.headers, null, 2));
+    console.log('User ID:', req.user?.id);
     
     if (!req.user || !req.user.id) {
       console.log('❌ No user object or user ID found');
       return res.status(401).json({ error: 'User not found in request' });
     }
     
-    console.log('Querying dates for user ID:', req.user.id);
     const dates = await db('daily_entries')
       .select('entry_date')
       .where('user_id', req.user.id)
       .orderBy('entry_date', 'desc');
       
-    console.log('Raw dates from database:', dates);
-    
     const dateStrings = dates.map(row => {
       // Handle both Date objects (PostgreSQL) and strings (SQLite)
       if (row.entry_date instanceof Date) {
@@ -429,7 +408,7 @@ app.get('/dates', auth.requireAuth, async (req, res) => {
       }
     });
     
-    console.log('✅ Processed date strings:', dateStrings);
+    console.log('✅ Returning', dateStrings.length, 'dates');
     res.json(dateStrings);
   } catch (error) {
     console.error('❌ Error fetching dates:', error);
