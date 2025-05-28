@@ -159,6 +159,66 @@ input:checked + .slider .slider-text.modern {
   opacity: 0.5 !important;
 }
 
+/* Fix calendar alignment issues */
+.fc-scrollgrid {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.fc-col-header-cell {
+  text-align: center !important;
+  vertical-align: middle !important;
+  padding: 8px 4px !important;
+}
+
+.fc-daygrid-day-frame {
+  min-height: 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+.fc-daygrid-day-number {
+  padding: 4px !important;
+  text-align: center !important;
+  width: 100% !important;
+}
+
+/* Ensure proper calendar structure */
+.fc-scrollgrid-sync-table {
+  width: 100% !important;
+}
+
+.fc-col-header {
+  background: var(--bg-secondary) !important;
+}
+
+.fc-col-header-cell-cushion {
+  padding: 8px !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix week number column if it appears */
+.fc-daygrid-week-number {
+  display: none !important;
+}
+
+.fc-week-number {
+  display: none !important;
+}
+
+/* Ensure calendar doesn't duplicate */
+.calendar-container .fc {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.fc-view-harness {
+  overflow: hidden !important;
+}
+
 .fc-daygrid-day {
   transition: all 0.3s ease;
   border-radius: var(--radius-sm) !important;

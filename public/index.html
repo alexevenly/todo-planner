@@ -32,7 +32,6 @@
 		document.addEventListener('DOMContentLoaded', function() {
 			const calendarEl = document.getElementById('calendar');
 			const calendar = new FullCalendar.Calendar(calendarEl, {
-				weekNumberCalculation: "ISO",
 				firstDay: 1,
 				locale: 'ru',
 				// Add custom header with logout button
@@ -111,6 +110,15 @@
 					modernStyle.disabled = true;
 					localStorage.setItem('theme', 'classic');
 				}
+				
+				// Re-render calendar after theme change to fix display issues
+				setTimeout(() => {
+					calendar.render();
+					// Re-apply our custom styling after re-render
+					setTimeout(runLoop, 100);
+					setTimeout(addButtonFallbacks, 150);
+					setTimeout(styleLogoutButton, 200);
+				}, 50);
 			});
 		});
 

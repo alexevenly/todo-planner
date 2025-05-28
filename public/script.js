@@ -221,7 +221,17 @@ function init() {
 						
 						checkbox.type = "checkbox";
 						checkbox.checked = element['checked'] || false;
-						span.textContent = element['content'] || '';
+						
+						// Clean HTML markup from content - extract text only
+						let cleanContent = element['content'] || '';
+						if (cleanContent.includes('<')) {
+							// If content contains HTML, extract text from it
+							const tempDiv = document.createElement('div');
+							tempDiv.innerHTML = cleanContent;
+							cleanContent = tempDiv.textContent || tempDiv.innerText || '';
+						}
+						
+						span.textContent = cleanContent;
 						span.contentEditable = false;
 						
 						newEntity.appendChild(checkbox);
@@ -423,7 +433,17 @@ function init() {
 
 					checkbox.type = "checkbox";
 					span.contentEditable = false;
-					span.textContent = text;
+					
+					// Clean HTML markup from text - extract text only
+					let cleanText = text || '';
+					if (cleanText.includes('<')) {
+						// If text contains HTML, extract text from it
+						const tempDiv = document.createElement('div');
+						tempDiv.innerHTML = cleanText;
+						cleanText = tempDiv.textContent || tempDiv.innerText || '';
+					}
+					
+					span.textContent = cleanText;
 
 					listItem.appendChild(checkbox);
 					listItem.appendChild(span);

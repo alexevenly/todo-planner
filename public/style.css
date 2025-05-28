@@ -232,6 +232,30 @@ justify-content: space-between;
 padding: 10px !important;
 }
 
+/* Fix week number column if it appears */
+.fc-daygrid-week-number {
+display: none !important;
+}
+
+.fc-week-number {
+display: none !important;
+}
+
+/* Ensure calendar doesn't duplicate */
+.calendar-container .fc {
+position: relative !important;
+overflow: hidden !important;
+}
+
+.fc-view-harness {
+overflow: hidden !important;
+}
+
+/* Ensure proper calendar structure */
+.fc-scrollgrid-sync-table {
+width: 100% !important;
+}
+
 /**pie chart**/
 #pie_chart_overlay {
 position: fixed;
