@@ -17,10 +17,28 @@ const environment = process.env.NODE_ENV || 'development';
 // Initialize database
 const db = knex(knexConfig[environment]);
 
+console.log('=== DATABASE CONFIG ===');
+console.log('Environment:', environment);
+console.log('Database client:', knexConfig[environment].client);
+console.log('Database connection:', knexConfig[environment].connection);
+console.log('Database URL exists:', !!process.env.DATABASE_URL);
+
 // Session store
 const store = new KnexSessionStore({
   knex: db,
   tablename: 'sessions'
+});
+
+console.log('=== SESSION STORE CONFIG ===');
+console.log('Session store initialized with table: sessions');
+console.log('Session store database client:', db.client.config.client);
+
+// Test session store connection
+store.ready = store.ready || Promise.resolve();
+store.ready.then(() => {
+  console.log('✅ Session store ready');
+}).catch((err) => {
+  console.error('❌ Session store error:', err);
 });
 
 // Middleware
@@ -40,10 +58,32 @@ app.use(helmet({
 app.use(compression());
 app.use(cors({
   credentials: true,
-  origin: process.env.NODE_ENV === 'production' ? false : true
+  origin: process.env.NODE_ENV === 'production' ? 
+    (process.env.FRONTEND_URL || true) : // Allow configured frontend URL or same origin in production
+    true // Allow all origins in development
 }));
+
+console.log('=== CORS CONFIG ===');
+console.log('Environment:', process.env.NODE_ENV);
+console.log('CORS origin setting:', process.env.NODE_ENV === 'production' ? 
+  (process.env.FRONTEND_URL || true) : true);
+console.log('CORS credentials:', true);
+console.log('Frontend URL env var:', process.env.FRONTEND_URL);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`\n=== INCOMING REQUEST ===`);
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('User-Agent:', req.headers['user-agent']);
+  console.log('Origin:', req.headers.origin);
+  console.log('Referer:', req.headers.referer);
+  console.log('Cookie header:', req.headers.cookie);
+  console.log('Content-Type:', req.headers['content-type']);
+  next();
+});
 
 // Session configuration
 app.use(session({
@@ -58,6 +98,11 @@ app.use(session({
   }
 }));
 
+console.log('=== SESSION CONFIG ===');
+console.log('Environment:', process.env.NODE_ENV);
+console.log('Cookie secure:', process.env.NODE_ENV === 'production');
+console.log('Session secret exists:', !!(process.env.SESSION_SECRET || 'your-secret-key-change-in-production'));
+
 // Add user to request
 app.use(auth.addUserToRequest(db));
 
@@ -65,6 +110,41 @@ app.use(auth.addUserToRequest(db));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Authentication Routes
+
+// Health check endpoint
+app.get('/health', async (req, res) => {
+  try {
+    console.log('=== HEALTH CHECK ===');
+    
+    // Test database connection
+    await db.raw('SELECT 1');
+    console.log('✅ Database connection OK');
+    
+    // Check session store
+    const sessionCount = await db('sessions').count('* as count').first();
+    console.log('Active sessions:', sessionCount.count);
+    
+    // Check users table
+    const userCount = await db('users').count('* as count').first();
+    console.log('Total users:', userCount.count);
+    
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      database: 'connected',
+      sessions: sessionCount.count,
+      users: userCount.count
+    });
+  } catch (error) {
+    console.error('❌ Health check failed:', error);
+    res.status(500).json({
+      status: 'unhealthy',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
 
 // Register
 app.post('/auth/register', async (req, res) => {
@@ -126,32 +206,47 @@ app.post('/auth/register', async (req, res) => {
 // Login
 app.post('/auth/login', async (req, res) => {
   try {
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('Request body:', { username: req.body.username, password: '[REDACTED]' });
+    console.log('Request headers:', JSON.stringify(req.headers, null, 2));
+    console.log('Session before login:', req.session);
+    
     const { username, password } = req.body;
 
     if (!username || !password) {
+      console.log('❌ Missing username or password');
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
     // Find user by username or email
+    console.log('Looking up user:', username);
     const user = await db('users')
       .where('username', username)
       .orWhere('email', username)
       .first();
 
     if (!user) {
+      console.log('❌ User not found:', username);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    console.log('✅ User found:', { id: user.id, username: user.username, email: user.email, is_active: user.is_active });
+
     if (!user.is_active) {
+      console.log('❌ User account is disabled:', user.id);
       return res.status(401).json({ error: 'Account is disabled' });
     }
 
     // Verify password
+    console.log('Verifying password...');
     const isValidPassword = await auth.verifyPassword(password, user.password_hash);
     
     if (!isValidPassword) {
+      console.log('❌ Invalid password for user:', user.id);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
+    console.log('✅ Password verified for user:', user.id);
 
     // Update last login
     await db('users').where('id', user.id).update({
@@ -159,10 +254,14 @@ app.post('/auth/login', async (req, res) => {
     });
 
     // Create session
+    console.log('Creating session...');
     req.session.userId = user.id;
     req.session.username = user.username;
+    
+    console.log('Session after login:', req.session);
+    console.log('Session ID:', req.session.id);
 
-    res.json({ 
+    const responseData = { 
       message: 'Login successful',
       user: {
         id: user.id,
@@ -171,27 +270,48 @@ app.post('/auth/login', async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name
       }
-    });
+    };
+    
+    console.log('✅ Login successful, sending response:', responseData);
+    res.json(responseData);
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Login error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Logout
 app.post('/auth/logout', (req, res) => {
+  console.log('=== LOGOUT ATTEMPT ===');
+  console.log('Session before logout:', req.session);
+  console.log('Session ID:', req.session?.id);
+  console.log('User ID:', req.session?.userId);
+  
   req.session.destroy((err) => {
     if (err) {
-      console.error('Logout error:', err);
+      console.error('❌ Logout error:', err);
       return res.status(500).json({ error: 'Could not log out' });
     }
+    console.log('✅ Session destroyed successfully');
     res.clearCookie('connect.sid');
+    console.log('✅ Cookie cleared');
     res.json({ message: 'Logout successful' });
   });
 });
 
 // Get current user
 app.get('/auth/user', auth.requireAuth, (req, res) => {
+  console.log('=== /auth/user ENDPOINT ===');
+  console.log('Session exists:', !!req.session);
+  console.log('Session userId:', req.session?.userId);
+  console.log('User object:', req.user);
+  
+  if (!req.user) {
+    console.log('❌ No user object found in request');
+    return res.status(401).json({ error: 'User not found' });
+  }
+  
+  console.log('✅ Returning user data:', req.user);
   res.json({ user: req.user });
 });
 
@@ -200,10 +320,27 @@ app.get('/auth/user', auth.requireAuth, (req, res) => {
 // Get all available dates
 app.get('/dates', auth.requireAuth, async (req, res) => {
   try {
+    console.log('=== /dates ENDPOINT ===');
+    console.log('Request URL:', req.url);
+    console.log('Request method:', req.method);
+    console.log('Session exists:', !!req.session);
+    console.log('Session userId:', req.session?.userId);
+    console.log('User object:', req.user);
+    console.log('Request headers:', JSON.stringify(req.headers, null, 2));
+    
+    if (!req.user || !req.user.id) {
+      console.log('❌ No user object or user ID found');
+      return res.status(401).json({ error: 'User not found in request' });
+    }
+    
+    console.log('Querying dates for user ID:', req.user.id);
     const dates = await db('daily_entries')
       .select('entry_date')
       .where('user_id', req.user.id)
       .orderBy('entry_date', 'desc');
+      
+    console.log('Raw dates from database:', dates);
+    
     const dateStrings = dates.map(row => {
       // Handle both Date objects (PostgreSQL) and strings (SQLite)
       if (row.entry_date instanceof Date) {
@@ -212,9 +349,11 @@ app.get('/dates', auth.requireAuth, async (req, res) => {
         return row.entry_date; // Already a string in SQLite
       }
     });
+    
+    console.log('✅ Processed date strings:', dateStrings);
     res.json(dateStrings);
   } catch (error) {
-    console.error('Error fetching dates:', error);
+    console.error('❌ Error fetching dates:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

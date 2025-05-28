@@ -2,18 +2,40 @@ const bcrypt = require('bcryptjs');
 
 // Authentication middleware
 function requireAuth(req, res, next) {
+  console.log('=== AUTH CHECK ===');
+  console.log('Request URL:', req.url);
+  console.log('Request method:', req.method);
+  console.log('Session exists:', !!req.session);
+  console.log('Session ID:', req.session?.id);
+  console.log('Session userId:', req.session?.userId);
+  console.log('Session username:', req.session?.username);
+  console.log('User object exists:', !!req.user);
+  console.log('User object:', req.user);
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  console.log('Cookies:', req.headers.cookie);
+  
   if (req.session && req.session.userId) {
+    console.log('✅ Authentication successful for user:', req.session.userId);
     return next();
   } else {
+    console.log('❌ Authentication failed - no valid session');
+    console.log('Session object:', req.session);
     return res.status(401).json({ error: 'Authentication required' });
   }
 }
 
 // Middleware to redirect to login if not authenticated (for HTML pages)
 function requireAuthRedirect(req, res, next) {
+  console.log('=== AUTH REDIRECT CHECK ===');
+  console.log('Request URL:', req.url);
+  console.log('Session exists:', !!req.session);
+  console.log('Session userId:', req.session?.userId);
+  
   if (req.session && req.session.userId) {
+    console.log('✅ Authentication successful for redirect check');
     return next();
   } else {
+    console.log('❌ Authentication failed - redirecting to login');
     return res.redirect('/login.html');
   }
 }
@@ -21,8 +43,14 @@ function requireAuthRedirect(req, res, next) {
 // Middleware to add user info to request
 function addUserToRequest(db) {
   return async (req, res, next) => {
+    console.log('=== ADD USER TO REQUEST ===');
+    console.log('Request URL:', req.url);
+    console.log('Session exists:', !!req.session);
+    console.log('Session userId:', req.session?.userId);
+    
     if (req.session && req.session.userId) {
       try {
+        console.log('Looking up user with ID:', req.session.userId);
         const user = await db('users').where('id', req.session.userId).first();
         if (user) {
           req.user = {
@@ -32,10 +60,15 @@ function addUserToRequest(db) {
             first_name: user.first_name,
             last_name: user.last_name
           };
+          console.log('✅ User found and added to request:', req.user);
+        } else {
+          console.log('❌ User not found in database for ID:', req.session.userId);
         }
       } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error('❌ Error fetching user:', error);
       }
+    } else {
+      console.log('No session or userId, skipping user lookup');
     }
     next();
   };
