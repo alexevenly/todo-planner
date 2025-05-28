@@ -42,6 +42,29 @@ store.on('disconnect', () => {
   console.log('❌ Session store disconnected');
 });
 
+// Override the get method to add debugging
+const originalGet = store.get.bind(store);
+store.get = function(sid, callback) {
+  console.log('🔍 Session store GET called for SID:', sid);
+  return originalGet(sid, (err, session) => {
+    if (err) {
+      console.log('❌ Session store GET error:', err);
+    } else if (session) {
+      console.log('✅ Session store GET found session:', { userId: session.userId, username: session.username });
+    } else {
+      console.log('❌ Session store GET - no session found for SID:', sid);
+    }
+    callback(err, session);
+  });
+};
+
+// Override the set method to add debugging
+const originalSet = store.set.bind(store);
+store.set = function(sid, session, callback) {
+  console.log('💾 Session store SET called for SID:', sid, 'with data:', { userId: session.userId, username: session.username });
+  return originalSet(sid, session, callback);
+};
+
 // Test session store connection
 store.ready = store.ready || Promise.resolve();
 store.ready.then(() => {
@@ -121,6 +144,33 @@ app.use((req, res, next) => {
       username: req.session.username,
       sessionKeys: Object.keys(req.session)
     });
+    
+    // Additional debugging for session cookie parsing
+    if (req.headers.cookie) {
+      const cookies = req.headers.cookie.split(';');
+      const sessionCookie = cookies.find(cookie => cookie.trim().startsWith('connect.sid='));
+      if (sessionCookie) {
+        const cookieValue = sessionCookie.split('=')[1];
+        console.log('Raw session cookie value:', cookieValue);
+        
+        // Decode the session ID from the cookie
+        try {
+          const decodedValue = decodeURIComponent(cookieValue);
+          console.log('Decoded session cookie:', decodedValue);
+          
+          // Extract the actual session ID (remove 's:' prefix and signature)
+          if (decodedValue.startsWith('s:')) {
+            const sessionIdWithSig = decodedValue.substring(2);
+            const sessionId = sessionIdWithSig.split('.')[0];
+            console.log('Extracted session ID from cookie:', sessionId);
+            console.log('Current session ID from middleware:', req.session.id);
+            console.log('Session IDs match:', sessionId === req.session.id);
+          }
+        } catch (e) {
+          console.log('Error decoding session cookie:', e.message);
+        }
+      }
+    }
   }
   next();
 });
