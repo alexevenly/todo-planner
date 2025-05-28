@@ -365,7 +365,7 @@ button:active {
   display: flex;
   gap: 20px;
   max-width: 1400px;
-  margin: 0 auto;
+  margin: 150px auto 0;
 }
 
 .left, .right {
@@ -593,6 +593,8 @@ table tr:hover td {
   box-shadow: var(--shadow-xl);
   max-width: 90vw;
   max-height: 90vh;
+  position: absolute;
+  top: 150px;
 }
 
 #close_pie_chart_button {
