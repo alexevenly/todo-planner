@@ -28,12 +28,16 @@
     <script>
 		let timeoutId;
 		let availableDates = [];
+		let calendar; // Store calendar instance globally
 
 		document.addEventListener('DOMContentLoaded', function() {
 			const calendarEl = document.getElementById('calendar');
-			const calendar = new FullCalendar.Calendar(calendarEl, {
+			calendar = new FullCalendar.Calendar(calendarEl, {
 				firstDay: 1,
 				locale: 'ru',
+				initialView: 'dayGridMonth',
+				fixedWeekCount: false, // Prevent extra weeks
+				showNonCurrentDates: true,
 				// Add custom header with logout button
 				headerToolbar: {
 					left: 'prev,next today',
@@ -68,14 +72,18 @@
 					next: '›',
 					today: 'Today'
 				},
-				// Handle view changes properly
+				// Handle view changes properly - only run once per view change
 				datesSet: function() {
-					// Wait for DOM to update, then run our styling
-					setTimeout(runLoop, 100);
-					// Add fallback for navigation buttons if symbols don't render
-					setTimeout(addButtonFallbacks, 150);
-					// Style the logout button
-					setTimeout(styleLogoutButton, 200);
+					// Clear any existing timeout to prevent multiple calls
+					if (timeoutId) {
+						clearTimeout(timeoutId);
+					}
+					// Wait for DOM to update, then run our styling once
+					timeoutId = setTimeout(() => {
+						runLoop();
+						addButtonFallbacks();
+						styleLogoutButton();
+					}, 100);
 				}
 			});
 			calendar.render();
@@ -111,14 +119,12 @@
 					localStorage.setItem('theme', 'classic');
 				}
 				
-				// Re-render calendar after theme change to fix display issues
+				// Don't re-render calendar, just refresh the styling
 				setTimeout(() => {
-					calendar.render();
-					// Re-apply our custom styling after re-render
-					setTimeout(runLoop, 100);
-					setTimeout(addButtonFallbacks, 150);
-					setTimeout(styleLogoutButton, 200);
-				}, 50);
+					runLoop();
+					addButtonFallbacks();
+					styleLogoutButton();
+				}, 100);
 			});
 		});
 

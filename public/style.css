@@ -254,6 +254,40 @@ overflow: hidden !important;
 /* Ensure proper calendar structure */
 .fc-scrollgrid-sync-table {
 width: 100% !important;
+table-layout: fixed !important;
+}
+
+/* Fix day tile widths to be consistent */
+.fc-col-header-cell {
+width: 14.28571% !important;
+text-align: center !important;
+}
+
+.fc-daygrid-day {
+width: 14.28571% !important;
+min-width: 0 !important;
+max-width: none !important;
+}
+
+.fc-scrollgrid-sync-table td {
+width: 14.28571% !important;
+}
+
+.fc-daygrid-day-frame {
+width: 100% !important;
+}
+
+/* Prevent calendar from creating multiple instances */
+.fc-view-harness-active {
+position: relative !important;
+}
+
+.fc-daygrid-body {
+width: 100% !important;
+}
+
+.fc-scrollgrid-section-body > td {
+width: 14.28571% !important;
 }
 
 /**pie chart**/

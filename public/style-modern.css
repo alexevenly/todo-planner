@@ -169,6 +169,13 @@ input:checked + .slider .slider-text.modern {
   text-align: center !important;
   vertical-align: middle !important;
   padding: 8px 4px !important;
+  width: 14.28571% !important; /* Ensure equal width for all 7 days */
+}
+
+.fc-daygrid-day {
+  width: 14.28571% !important; /* Ensure equal width for all 7 days */
+  min-width: 0 !important;
+  max-width: none !important;
 }
 
 .fc-daygrid-day-frame {
@@ -177,6 +184,7 @@ input:checked + .slider .slider-text.modern {
   flex-direction: column !important;
   align-items: center !important;
   justify-content: flex-start !important;
+  width: 100% !important;
 }
 
 .fc-daygrid-day-number {
@@ -188,6 +196,11 @@ input:checked + .slider .slider-text.modern {
 /* Ensure proper calendar structure */
 .fc-scrollgrid-sync-table {
   width: 100% !important;
+  table-layout: fixed !important; /* Force equal column widths */
+}
+
+.fc-scrollgrid-sync-table td {
+  width: 14.28571% !important; /* Ensure equal width for all 7 days */
 }
 
 .fc-col-header {
@@ -217,6 +230,19 @@ input:checked + .slider .slider-text.modern {
 
 .fc-view-harness {
   overflow: hidden !important;
+}
+
+/* Prevent calendar from creating multiple instances */
+.fc-view-harness-active {
+  position: relative !important;
+}
+
+.fc-daygrid-body {
+  width: 100% !important;
+}
+
+.fc-scrollgrid-section-body > td {
+  width: 14.28571% !important;
 }
 
 .fc-daygrid-day {
