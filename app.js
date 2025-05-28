@@ -9,6 +9,7 @@ const KnexSessionStore = require('connect-session-knex')(session);
 const knex = require('knex');
 const knexConfig = require('./knexfile');
 const auth = require('./auth');
+const cookieSignature = require('cookie-signature');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -501,6 +502,29 @@ app.post('/auth/login', async (req, res) => {
       console.log('✅ Session saved successfully');
       console.log('Session ID after save:', req.session.id);
       console.log('Session data saved:', { userId: req.session.userId, username: req.session.username });
+      
+      // Manually set the session cookie if needed
+      const sessionCookieName = 'connect.sid';
+      const sessionId = req.session.id;
+      const signature = cookieSignature.sign(sessionId, process.env.SESSION_SECRET || 'your-secret-key-change-in-production');
+      const signedSessionId = 's:' + signature;
+      
+      // Set cookie with proper options for production
+      const cookieOptions = {
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/'
+      };
+      
+      console.log('Setting session cookie manually:', {
+        name: sessionCookieName,
+        value: signedSessionId.substring(0, 20) + '...',
+        options: cookieOptions
+      });
+      
+      res.cookie(sessionCookieName, signedSessionId, cookieOptions);
       
       const responseData = { 
         message: 'Login successful',
