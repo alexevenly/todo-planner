@@ -112,6 +112,19 @@ app.use(session({
   }
 }));
 
+// Session debugging middleware
+app.use((req, res, next) => {
+  if (req.session && req.url !== '/favicon.ico' && !req.url.includes('.css') && !req.url.includes('.js')) {
+    console.log('Session debug:', {
+      sessionId: req.session.id,
+      userId: req.session.userId,
+      username: req.session.username,
+      sessionKeys: Object.keys(req.session)
+    });
+  }
+  next();
+});
+
 console.log('=== SESSION CONFIG ===');
 console.log('Environment:', process.env.NODE_ENV);
 console.log('Cookie secure:', process.env.NODE_ENV === 'production');
@@ -177,6 +190,37 @@ app.get('/test-session', (req, res) => {
     userObject: req.user,
     timestamp: new Date().toISOString()
   });
+});
+
+// Debug endpoint to check session store
+app.get('/debug-sessions', async (req, res) => {
+  try {
+    console.log('=== SESSION STORE DEBUG ===');
+    
+    // Get all sessions from database
+    const sessions = await db('sessions').select('*').limit(10);
+    console.log('Sessions in database:', sessions.length);
+    
+    sessions.forEach((session, index) => {
+      console.log(`Session ${index + 1}:`, {
+        sid: session.sid,
+        expired: session.expired,
+        sess: typeof session.sess === 'string' ? JSON.parse(session.sess) : session.sess
+      });
+    });
+    
+    res.json({
+      sessionCount: sessions.length,
+      sessions: sessions.map(s => ({
+        sid: s.sid,
+        expired: s.expired,
+        sess: typeof s.sess === 'string' ? JSON.parse(s.sess) : s.sess
+      }))
+    });
+  } catch (error) {
+    console.error('❌ Session store debug error:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Register
@@ -307,23 +351,7 @@ app.post('/auth/login', async (req, res) => {
         }
         
         console.log('✅ Session saved successfully');
-        
-        // Manually set the session cookie if it's not being set automatically
-        const sessionId = req.session.id;
-        const cookieName = 'connect.sid';
-        const cookieValue = `s:${sessionId}`;
-        const cookieOptions = [
-          `Path=/`,
-          `HttpOnly`,
-          `Max-Age=86400`,
-          process.env.NODE_ENV === 'production' ? 'Secure' : '',
-          process.env.NODE_ENV === 'production' ? 'SameSite=None' : 'SameSite=Lax'
-        ].filter(Boolean).join('; ');
-        
-        const fullCookie = `${cookieName}=${cookieValue}; ${cookieOptions}`;
-        
-        console.log('Setting session cookie manually:', fullCookie);
-        res.setHeader('Set-Cookie', fullCookie);
+        console.log('Session data saved:', { userId: req.session.userId, username: req.session.username });
         
         const responseData = { 
           message: 'Login successful',
@@ -336,7 +364,7 @@ app.post('/auth/login', async (req, res) => {
           }
         };
         
-        console.log('✅ Login successful, sending response with cookie');
+        console.log('✅ Login successful, sending response');
         res.json(responseData);
       });
     });
