@@ -225,67 +225,181 @@ max-width: 100%;
 box-sizing: border-box;
 }
 
-.fc {
-width: 100% !important;
-max-width: 100% !important;
-}
-
-.fc-view-harness {
-width: 100% !important;
-overflow: hidden !important;
-}
-
-.fc-scrollgrid {
-width: 100% !important;
-max-width: 100% !important;
-table-layout: auto !important;
-}
-
-.fc-scrollgrid-sync-table {
-width: 100% !important;
-max-width: 100% !important;
-}
-
-.fc-header-toolbar {
+.calendar-header {
 background-color: lightgreen;
 padding: 20px;
 display: flex;
+align-items: center;
 justify-content: space-between;
+gap: 20px;
+border-radius: 10px 10px 0 0;
 }
 
-.fc-header-toolbar button {
-padding: 10px !important;
+.calendar-header h2 {
+margin: 0;
+font-size: 1.5rem;
+font-weight: bold;
+flex: 1;
+text-align: center;
 }
 
-/* Simple calendar fixes */
-.fc-col-header-cell {
-text-align: center !important;
-padding: 12px 8px !important;
+.nav-btn {
+background-color: lightgray !important;
+border: none !important;
+border-radius: 5px !important;
+font-size: 1.5rem !important;
+width: 40px !important;
+height: 40px !important;
+display: flex !important;
+align-items: center !important;
+justify-content: center !important;
+cursor: pointer !important;
 font-weight: bold !important;
 }
 
-.fc-daygrid-day {
-border: 1px solid #BBB !important;
+.nav-btn:hover {
+background-color: #bbb !important;
 }
 
-.fc-daygrid-day-frame {
-min-height: 100px !important;
-padding: 8px !important;
+.header-buttons {
+display: flex;
+gap: 10px;
 }
 
-.fc-daygrid-day-number {
-padding: 4px !important;
-text-align: center !important;
+.today-btn, .logout-btn {
+background-color: lightgray !important;
+border: none !important;
+border-radius: 5px !important;
+padding: 8px 16px !important;
+cursor: pointer !important;
 font-weight: bold !important;
 }
 
-/* Hide week numbers completely */
-.fc-daygrid-week-number,
-.fc-week-number {
-display: none !important;
+.today-btn:hover, .logout-btn:hover {
+background-color: #bbb !important;
 }
 
-/* Ensure calendar doesn't duplicate - removed problematic rules */
+.logout-btn {
+background-color: #dc3545 !important;
+color: white !important;
+}
+
+.logout-btn:hover {
+background-color: #c82333 !important;
+}
+
+.calendar-grid {
+padding: 20px;
+background-color: white;
+border-radius: 0 0 10px 10px;
+}
+
+.weekdays {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 1px;
+margin-bottom: 10px;
+}
+
+.weekday {
+background-color: #E0E0E0;
+font-weight: bold;
+text-align: center;
+padding: 12px 8px;
+border: 1px solid #BBB;
+}
+
+.days-grid {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 1px;
+}
+
+.day {
+aspect-ratio: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+font-weight: bold;
+border: 1px solid #BBB;
+min-height: 60px;
+transition: all 0.2s ease;
+}
+
+.day.empty {
+cursor: default;
+border: none;
+}
+
+.day.has-data {
+background-color: lightgreen;
+color: black;
+}
+
+.day.no-data {
+background-color: #C0C0C0;
+color: black;
+}
+
+.day.today {
+border: 3px solid yellow !important;
+font-weight: bold;
+}
+
+.day.today.has-data {
+background-color: lightgreen;
+}
+
+.day.today.no-data {
+background-color: orange;
+color: black;
+}
+
+.day:hover:not(.empty) {
+background-color: #f0f0f0;
+transform: scale(1.02);
+}
+
+.day.has-data:hover {
+background-color: #90EE90;
+}
+
+.day.no-data:hover {
+background-color: #A0A0A0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+.calendar-header {
+flex-direction: column;
+gap: 15px;
+}
+
+.calendar-header h2 {
+order: -1;
+}
+
+.header-buttons {
+order: 1;
+}
+
+.nav-btn {
+width: 35px !important;
+height: 35px !important;
+font-size: 1.2rem !important;
+}
+
+.day {
+min-height: 50px;
+font-size: 14px;
+}
+
+.weekday {
+padding: 8px 4px;
+font-size: 14px;
+}
+}
 
 /**pie chart**/
 #pie_chart_overlay {

@@ -132,141 +132,195 @@ input:checked + .slider .slider-text.modern {
   box-sizing: border-box;
 }
 
-.fc {
+#calendar {
+  width: 100%;
   font-family: inherit;
-  width: 100% !important;
-  max-width: 100% !important;
 }
 
-.fc-header-toolbar {
+.calendar-header {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   color: white;
   padding: 20px;
-  margin-bottom: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
 }
 
-.fc-button {
+.calendar-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+}
+
+.nav-btn {
   background: rgba(255, 255, 255, 0.2) !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
   border-radius: var(--radius-md) !important;
   color: white !important;
   font-weight: 500 !important;
+  font-size: 1.5rem !important;
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
   transition: all 0.3s ease !important;
 }
 
-.fc-button:hover {
+.nav-btn:hover {
   background: rgba(255, 255, 255, 0.3) !important;
   transform: translateY(-1px);
 }
 
-.fc-button:disabled {
-  opacity: 0.5 !important;
+.header-buttons {
+  display: flex;
+  gap: 10px;
 }
 
-/* Simple calendar fixes - don't force layouts */
-.fc-col-header-cell {
-  text-align: center !important;
-  padding: 12px 8px !important;
-  font-weight: 600 !important;
-  background: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-}
-
-.fc-daygrid-day {
-  transition: all 0.3s ease;
-  border: 1px solid var(--border-color) !important;
-}
-
-.fc-daygrid-day:hover {
-  background: var(--bg-secondary) !important;
-  transform: scale(1.02);
-}
-
-.fc-daygrid-day-frame {
-  min-height: 100px !important;
-  padding: 8px !important;
-}
-
-.fc-daygrid-day-number {
-  padding: 4px !important;
-  text-align: center !important;
+.today-btn, .logout-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: var(--radius-md) !important;
+  color: white !important;
   font-weight: 500 !important;
+  padding: 8px 16px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
 }
 
-.fc-day-today {
-  background: linear-gradient(135deg, var(--warning-color), #d97706) !important;
-  color: white !important;
-  border: 2px solid #fbbf24 !important;
+.today-btn:hover, .logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px);
 }
 
-.fc-day-today .fc-daygrid-day-number {
-  color: white !important;
-  font-weight: 700 !important;
+.logout-btn {
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  border: 1px solid rgba(220, 53, 69, 0.3) !important;
 }
 
-/* Hide week numbers completely */
-.fc-daygrid-week-number,
-.fc-week-number {
-  display: none !important;
+.logout-btn:hover {
+  background: linear-gradient(135deg, #c82333, #a71e2a) !important;
 }
 
-/* Custom styles for days with data */
-.fc-daygrid-day[style*="lightgreen"] {
-  background: linear-gradient(135deg, var(--success-color), #059669) !important;
-  color: white !important;
-}
-
-.fc-daygrid-day[style*="lightgreen"] .fc-daygrid-day-number {
-  color: white !important;
-  font-weight: 600 !important;
-}
-
-.fc-daygrid-day[style*="#C0C0C0"] {
-  background: linear-gradient(135deg, var(--bg-tertiary), #cbd5e1) !important;
-  color: var(--text-secondary) !important;
-}
-
-.fc-daygrid-day[style*="lightgreen"]:hover {
-  background: linear-gradient(135deg, #059669, #047857) !important;
-  transform: scale(1.05);
-  box-shadow: var(--shadow-md);
-}
-
-.fc-daygrid-day[style*="#C0C0C0"]:hover {
-  background: linear-gradient(135deg, #cbd5e1, #94a3b8) !important;
-  transform: scale(1.05);
-  box-shadow: var(--shadow-md);
-}
-
-/* Header Styles */
-header {
-  background: var(--bg-primary);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+.calendar-grid {
   padding: 20px;
-  margin-bottom: 20px;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  margin-bottom: 10px;
+}
+
+.weekday {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: center;
+  padding: 12px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.day {
+  aspect-ratio: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-header h2 {
-  font-size: 1.2rem;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
   font-weight: 500;
-  margin: 0;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+  min-height: 60px;
+}
+
+.day.empty {
+  cursor: default;
+  border: none;
+}
+
+.day.has-data {
+  background: linear-gradient(135deg, var(--success-color), #059669);
+  color: white;
+  font-weight: 600;
+}
+
+.day.no-data {
+  background: linear-gradient(135deg, var(--bg-tertiary), #cbd5e1);
   color: var(--text-secondary);
+}
+
+.day.today {
+  border: 3px solid var(--warning-color) !important;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+  font-weight: 700;
+}
+
+.day.today.has-data {
+  background: linear-gradient(135deg, var(--success-color), #059669);
+  color: white;
+}
+
+.day.today.no-data {
+  background: linear-gradient(135deg, var(--warning-color), #d97706);
+  color: white;
+}
+
+.day:hover:not(.empty) {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+  z-index: 1;
+}
+
+.day.has-data:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.day.no-data:hover {
+  background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .calendar-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .calendar-header h2 {
+    order: -1;
+  }
+  
+  .header-buttons {
+    order: 1;
+  }
+  
+  .nav-btn {
+    width: 35px !important;
+    height: 35px !important;
+    font-size: 1.2rem !important;
+  }
+  
+  .day {
+    min-height: 50px;
+    font-size: 14px;
+  }
+  
+  .weekday {
+    padding: 8px 4px;
+    font-size: 14px;
+  }
 }
 
 /* Button Styles */
