@@ -65,6 +65,20 @@ store.set = function(sid, session, callback) {
   return originalSet(sid, session, callback);
 };
 
+// Override the destroy method to add debugging
+const originalDestroy = store.destroy.bind(store);
+store.destroy = function(sid, callback) {
+  console.log('🗑️ Session store DESTROY called for SID:', sid);
+  return originalDestroy(sid, callback);
+};
+
+// Override the touch method to add debugging
+const originalTouch = store.touch.bind(store);
+store.touch = function(sid, session, callback) {
+  console.log('👆 Session store TOUCH called for SID:', sid);
+  return originalTouch(sid, session, callback);
+};
+
 // Test session store connection
 store.ready = store.ready || Promise.resolve();
 store.ready.then(() => {
@@ -132,17 +146,25 @@ app.use(session({
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // Allow cross-site cookies in production
+  },
+  // Add debugging for session middleware
+  genid: function(req) {
+    const newId = require('crypto').randomBytes(16).toString('base64').replace(/[+/=]/g, '');
+    console.log('🆔 Session middleware generating new ID:', newId);
+    return newId;
   }
 }));
 
-// Session debugging middleware
+// Debug middleware to track session creation vs loading
 app.use((req, res, next) => {
   if (req.session && req.url !== '/favicon.ico' && !req.url.includes('.css') && !req.url.includes('.js')) {
-    console.log('Session debug:', {
+    const isNewSession = req.session.isNew;
+    console.log('📋 Session middleware result:', {
+      isNew: isNewSession,
       sessionId: req.session.id,
-      userId: req.session.userId,
-      username: req.session.username,
-      sessionKeys: Object.keys(req.session)
+      hasUserId: !!req.session.userId,
+      cookieSessionId: req.headers.cookie?.includes('connect.sid=') ? 
+        req.headers.cookie.split('connect.sid=')[1]?.split(';')[0]?.replace('s%3A', '') : 'none'
     });
     
     // Additional debugging for session cookie parsing
