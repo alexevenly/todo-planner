@@ -473,22 +473,6 @@ app.post('/auth/login', async (req, res) => {
       console.log('Session ID after save:', req.session.id);
       console.log('Session data saved:', { userId: req.session.userId, username: req.session.username });
       
-      // Ensure the session cookie is set in the response
-      const sessionCookieName = req.sessionStore.name || 'connect.sid';
-      const sessionCookieValue = req.sessionID;
-      
-      // Check if cookie is already set by middleware
-      const existingCookie = res.getHeader('Set-Cookie');
-      if (!existingCookie || !existingCookie.toString().includes(sessionCookieName)) {
-        console.log('Setting session cookie manually as fallback');
-        const cookieOptions = req.session.cookie;
-        const cookieString = `${sessionCookieName}=s%3A${sessionCookieValue}; Path=${cookieOptions.path || '/'}; HttpOnly; Max-Age=${cookieOptions.maxAge / 1000}${cookieOptions.secure ? '; Secure' : ''}${cookieOptions.sameSite ? `; SameSite=${cookieOptions.sameSite}` : ''}`;
-        res.setHeader('Set-Cookie', cookieString);
-        console.log('Manual cookie set:', cookieString);
-      } else {
-        console.log('Session cookie already set by middleware');
-      }
-      
       const responseData = { 
         message: 'Login successful',
         user: {
