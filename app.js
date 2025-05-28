@@ -33,6 +33,15 @@ console.log('=== SESSION STORE CONFIG ===');
 console.log('Session store initialized with table: sessions');
 console.log('Session store database client:', db.client.config.client);
 
+// Add session store event listeners for debugging
+store.on('connect', () => {
+  console.log('✅ Session store connected');
+});
+
+store.on('disconnect', () => {
+  console.log('❌ Session store disconnected');
+});
+
 // Test session store connection
 store.ready = store.ready || Promise.resolve();
 store.ready.then(() => {
@@ -298,30 +307,52 @@ app.post('/auth/login', async (req, res) => {
 
     // Create session
     console.log('Creating session...');
-    req.session.userId = user.id;
-    req.session.username = user.username;
     
-    console.log('Session after login:', req.session);
-    console.log('Session ID:', req.session.id);
-
-    const responseData = { 
-      message: 'Login successful',
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name
+    // Regenerate session to ensure fresh session ID and cookie
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error('❌ Session regeneration error:', err);
+        return res.status(500).json({ error: 'Session creation failed' });
       }
-    };
-    
-    console.log('✅ Login successful, sending response:', responseData);
-    
-    // Log response headers and cookies being set
-    console.log('Response headers being set:');
-    console.log('Set-Cookie header will be:', res.getHeaders()['set-cookie']);
-    
-    res.json(responseData);
+      
+      console.log('✅ Session regenerated');
+      
+      // Set session data
+      req.session.userId = user.id;
+      req.session.username = user.username;
+      
+      console.log('Session after login:', req.session);
+      console.log('Session ID:', req.session.id);
+
+      // Explicitly save the session to ensure cookie is set
+      req.session.save((err) => {
+        if (err) {
+          console.error('❌ Session save error:', err);
+          return res.status(500).json({ error: 'Session save failed' });
+        }
+        
+        console.log('✅ Session saved successfully');
+        
+        const responseData = { 
+          message: 'Login successful',
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name
+          }
+        };
+        
+        console.log('✅ Login successful, sending response:', responseData);
+        
+        // Log response headers and cookies being set
+        console.log('Response headers being set:');
+        console.log('Set-Cookie header will be:', res.getHeaders()['set-cookie']);
+        
+        res.json(responseData);
+      });
+    });
   } catch (error) {
     console.error('❌ Login error:', error);
     res.status(500).json({ error: 'Internal server error' });
