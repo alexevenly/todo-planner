@@ -128,10 +128,14 @@ input:checked + .slider .slider-text.modern {
   box-shadow: var(--shadow-xl);
   overflow: hidden;
   backdrop-filter: blur(10px);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .fc {
   font-family: inherit;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 .fc-header-toolbar {
@@ -670,4 +674,20 @@ input[type="checkbox"]:checked::after {
 
 .logout-button:active {
   transform: translateY(0);
+}
+
+.fc-view-harness {
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+.fc-scrollgrid {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: auto !important;
+}
+
+.fc-scrollgrid-sync-table {
+  width: 100% !important;
+  max-width: 100% !important;
 } 

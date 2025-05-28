@@ -80,10 +80,14 @@
 					}
 					// Wait for DOM to update, then run our styling once
 					timeoutId = setTimeout(() => {
+						// Clear any existing data-listener-added attributes to allow fresh setup
+						const existingTds = document.querySelectorAll('td[data-listener-added]');
+						existingTds.forEach(td => td.removeAttribute('data-listener-added'));
+						
 						runLoop();
 						addButtonFallbacks();
 						styleLogoutButton();
-					}, 100);
+					}, 150);
 				}
 			});
 			calendar.render();
@@ -155,31 +159,45 @@
 				availableDates = [];
 			}
 			
+			// Get only current month days (not fc-day-other)
 			const tds = tbody.querySelectorAll('td:not(.fc-day-other)');
 			tds.forEach(dayEl => {
-				// Remove existing event listeners to prevent duplicates
-				const newDayEl = dayEl.cloneNode(true);
-				dayEl.parentNode.replaceChild(newDayEl, dayEl);
-				
-				if (newDayEl.classList.contains('fc-day-today')) {
-					newDayEl.style.border = 'solid 2px yellow';
+				// Don't clone and replace - just update existing elements
+				if (dayEl.classList.contains('fc-day-today')) {
+					dayEl.style.border = 'solid 2px yellow';
 				}
 				
-				const date = newDayEl.getAttribute('data-date');
+				const date = dayEl.getAttribute('data-date');
 				let isNew = true;
 				
-				if (availableDates.includes(date)) {
-					newDayEl.style.backgroundColor = 'lightgreen';
-					isNew = false;
+				// Remove any existing click listeners by cloning only if needed
+				if (!dayEl.hasAttribute('data-listener-added')) {
+					const newDayEl = dayEl.cloneNode(true);
+					dayEl.parentNode.replaceChild(newDayEl, dayEl);
+					
+					if (availableDates.includes(date)) {
+						newDayEl.style.backgroundColor = 'lightgreen';
+						isNew = false;
+					} else {
+						newDayEl.style.backgroundColor = '#C0C0C0'; // gray
+					}
+					
+					newDayEl.addEventListener('click', function() {
+						const dateObject = new Date(date);
+						const dayOfWeek = dateObject.toLocaleString('default', { weekday: 'long' });
+						window.location.href = 'template.html?date=' + date + '&dayOfWeek=' + dayOfWeek + '&new=' + isNew;
+					});
+					
+					// Mark as having listener to prevent future cloning
+					newDayEl.setAttribute('data-listener-added', 'true');
 				} else {
-					newDayEl.style.backgroundColor = '#C0C0C0'; // gray
+					// Just update colors for existing elements
+					if (availableDates.includes(date)) {
+						dayEl.style.backgroundColor = 'lightgreen';
+					} else {
+						dayEl.style.backgroundColor = '#C0C0C0'; // gray
+					}
 				}
-				
-				newDayEl.addEventListener('click', function() {
-					const dateObject = new Date(date);
-					const dayOfWeek = dateObject.toLocaleString('default', { weekday: 'long' });
-					window.location.href = 'template.html?date=' + date + '&dayOfWeek=' + dayOfWeek + '&new=' + isNew;
-				});
 			});
 			
 			// Handle other month days

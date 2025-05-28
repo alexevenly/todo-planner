@@ -211,6 +211,8 @@ display: flex;
 justify-content: center;
 align-items: center;
 height: 80vh;
+width: 100%;
+box-sizing: border-box;
 }
 
 #calendar {
@@ -219,6 +221,29 @@ height: 90%;
 background-color: lightgray;
 border-radius: 10px;
 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+max-width: 100%;
+box-sizing: border-box;
+}
+
+.fc {
+width: 100% !important;
+max-width: 100% !important;
+}
+
+.fc-view-harness {
+width: 100% !important;
+overflow: hidden !important;
+}
+
+.fc-scrollgrid {
+width: 100% !important;
+max-width: 100% !important;
+table-layout: auto !important;
+}
+
+.fc-scrollgrid-sync-table {
+width: 100% !important;
+max-width: 100% !important;
 }
 
 .fc-header-toolbar {
