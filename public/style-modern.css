@@ -744,4 +744,94 @@ input[type="checkbox"]:checked::after {
 .fc-scrollgrid-sync-table {
   width: 100% !important;
   max-width: 100% !important;
+}
+
+/* Header Styles for Day View */
+header {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-lg);
+  margin-top: 30px !important;
+  position: fixed;
+  top: 0px;
+  left: 5%;
+  z-index: 9999;
+  width: 88%;
+  margin: auto;
+  border-radius: var(--radius-lg);
+}
+
+.header-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.header-title h1, .header-title h2 {
+  margin: 0;
+  color: white;
+}
+
+.header-title h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.header-title h2 {
+  font-size: 1.2rem;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+header button {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: var(--radius-md) !important;
+  color: white !important;
+  font-weight: 500 !important;
+  padding: 10px 20px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  font-size: 1rem !important;
+}
+
+header button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+header .logout-button {
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  border: 1px solid rgba(220, 53, 69, 0.3) !important;
+}
+
+header .logout-button:hover {
+  background: linear-gradient(135deg, #c82333, #a71e2a) !important;
+}
+
+#appearing {
+  display: flex;
+  align-items: center;
+  background: var(--bg-primary);
+  border: 2px solid var(--danger-color);
+  border-radius: var(--radius-md);
+  padding: 15px;
+  box-shadow: var(--shadow-md);
+}
+
+#messageSave {
+  color: var(--danger-color) !important;
+  font-weight: 600;
+  margin: 0 10px 0 0;
 } 
