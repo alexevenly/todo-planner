@@ -82,6 +82,29 @@ app.use((req, res, next) => {
   console.log('Referer:', req.headers.referer);
   console.log('Cookie header:', req.headers.cookie);
   console.log('Content-Type:', req.headers['content-type']);
+  
+  // Parse session cookie specifically
+  if (req.headers.cookie) {
+    const sessionCookie = req.headers.cookie
+      .split(';')
+      .find(cookie => cookie.trim().startsWith('connect.sid='));
+    console.log('Session cookie found:', !!sessionCookie);
+    if (sessionCookie) {
+      console.log('Session cookie value:', sessionCookie.trim());
+    }
+  } else {
+    console.log('❌ No cookies in request');
+  }
+  
+  // Log response cookies when they're set
+  const originalJson = res.json;
+  res.json = function(data) {
+    console.log('=== RESPONSE HEADERS ===');
+    console.log('Set-Cookie:', res.getHeaders()['set-cookie']);
+    console.log('Response status:', res.statusCode);
+    return originalJson.call(this, data);
+  };
+  
   next();
 });
 
@@ -94,13 +117,15 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // Allow cross-site cookies in production
   }
 }));
 
 console.log('=== SESSION CONFIG ===');
 console.log('Environment:', process.env.NODE_ENV);
 console.log('Cookie secure:', process.env.NODE_ENV === 'production');
+console.log('Cookie sameSite:', process.env.NODE_ENV === 'production' ? 'none' : 'lax');
 console.log('Session secret exists:', !!(process.env.SESSION_SECRET || 'your-secret-key-change-in-production'));
 
 // Add user to request
@@ -144,6 +169,24 @@ app.get('/health', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   }
+});
+
+// Session test endpoint (no auth required)
+app.get('/test-session', (req, res) => {
+  console.log('=== SESSION TEST ===');
+  console.log('Session exists:', !!req.session);
+  console.log('Session ID:', req.session?.id);
+  console.log('Session userId:', req.session?.userId);
+  console.log('Session data:', req.session);
+  console.log('User object:', req.user);
+  
+  res.json({
+    sessionExists: !!req.session,
+    sessionId: req.session?.id,
+    userId: req.session?.userId,
+    userObject: req.user,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Register
@@ -273,6 +316,11 @@ app.post('/auth/login', async (req, res) => {
     };
     
     console.log('✅ Login successful, sending response:', responseData);
+    
+    // Log response headers and cookies being set
+    console.log('Response headers being set:');
+    console.log('Set-Cookie header will be:', res.getHeaders()['set-cookie']);
+    
     res.json(responseData);
   } catch (error) {
     console.error('❌ Login error:', error);
