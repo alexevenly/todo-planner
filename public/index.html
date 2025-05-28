@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Minimalistic Calendar</title>
+    <link rel="stylesheet" type="text/css" href="style.css" id="main-style">
+    <link rel="stylesheet" type="text/css" href="style-modern.css" id="modern-style" disabled>
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+  	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+    <div class="theme-toggle-container">
+      <label class="theme-toggle">
+        <input type="checkbox" id="theme-toggle-checkbox">
+        <span class="slider">
+          <span class="slider-text classic">Classic</span>
+          <span class="slider-text modern">Modern</span>
+        </span>
+      </label>
+    </div>
+    
+    <div class="calendar-container">
+      <div id="calendar"></div>
+    </div>
+    
+    <!-- FullCalendar library -->
+    <script src="index.global.min.js" type="text/javascript"></script>
+    <script>
+		let timeoutId;
+		let availableDates = [];
+
+		document.addEventListener('DOMContentLoaded', function() {
+			const calendarEl = document.getElementById('calendar');
+			const calendar = new FullCalendar.Calendar(calendarEl, {
+				weekNumberCalculation: "ISO",
+				firstDay: 1,
+				locale: 'ru',
+				// Add custom header with logout button
+				headerToolbar: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'logoutButton'
+				},
+				customButtons: {
+					logoutButton: {
+						text: 'Logout',
+						click: async function() {
+							try {
+								const response = await fetch('/auth/logout', {
+									method: 'POST',
+									credentials: 'include'
+								});
+								
+								if (response.ok) {
+									window.location.href = '/login.html';
+								} else {
+									alert('Logout failed. Please try again.');
+								}
+							} catch (error) {
+								console.error('Logout error:', error);
+								alert('Logout failed. Please try again.');
+							}
+						}
+					}
+				},
+				// Add fallback for navigation buttons
+				buttonText: {
+					prev: '‹',
+					next: '›',
+					today: 'Today'
+				},
+				// Handle view changes properly
+				datesSet: function() {
+					// Wait for DOM to update, then run our styling
+					setTimeout(runLoop, 100);
+					// Add fallback for navigation buttons if symbols don't render
+					setTimeout(addButtonFallbacks, 150);
+					// Style the logout button
+					setTimeout(styleLogoutButton, 200);
+				}
+			});
+			calendar.render();
+			
+			// Load available dates once
+			loadAvailableDates().then(() => {
+				runLoop();
+			});
+			
+			// Theme toggle functionality
+			const themeToggle = document.getElementById('theme-toggle-checkbox');
+			const mainStyle = document.getElementById('main-style');
+			const modernStyle = document.getElementById('modern-style');
+			
+			// Load saved theme preference
+			const savedTheme = localStorage.getItem('theme') || 'classic';
+			if (savedTheme === 'modern') {
+				themeToggle.checked = true;
+				mainStyle.disabled = true;
+				modernStyle.disabled = false;
+			}
+			
+			themeToggle.addEventListener('change', function() {
+				if (this.checked) {
+					// Switch to modern theme
+					mainStyle.disabled = true;
+					modernStyle.disabled = false;
+					localStorage.setItem('theme', 'modern');
+				} else {
+					// Switch to classic theme
+					mainStyle.disabled = false;
+					modernStyle.disabled = true;
+					localStorage.setItem('theme', 'classic');
+				}
+			});
+		});
+
+		async function loadAvailableDates() {
+			try {
+				const response = await fetch('/dates');
+				if (response.status === 401) {
+					// Redirect to login if unauthorized
+					window.location.href = '/login.html';
+					return;
+				}
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				availableDates = await response.json();
+			} catch (error) {
+				console.error('Error loading dates:', error);
+				availableDates = [];
+			}
+		}
+
+		function runLoop() {
+			const tbody = document.querySelector('tbody[role="presentation"]');
+			if (!tbody) return;
+			
+			// Ensure availableDates is an array
+			if (!Array.isArray(availableDates)) {
+				availableDates = [];
+			}
+			
+			const tds = tbody.querySelectorAll('td:not(.fc-day-other)');
+			tds.forEach(dayEl => {
+				// Remove existing event listeners to prevent duplicates
+				const newDayEl = dayEl.cloneNode(true);
+				dayEl.parentNode.replaceChild(newDayEl, dayEl);
+				
+				if (newDayEl.classList.contains('fc-day-today')) {
+					newDayEl.style.border = 'solid 2px yellow';
+				}
+				
+				const date = newDayEl.getAttribute('data-date');
+				let isNew = true;
+				
+				if (availableDates.includes(date)) {
+					newDayEl.style.backgroundColor = 'lightgreen';
+					isNew = false;
+				} else {
+					newDayEl.style.backgroundColor = '#C0C0C0'; // gray
+				}
+				
+				newDayEl.addEventListener('click', function() {
+					const dateObject = new Date(date);
+					const dayOfWeek = dateObject.toLocaleString('default', { weekday: 'long' });
+					window.location.href = 'template.html?date=' + date + '&dayOfWeek=' + dayOfWeek + '&new=' + isNew;
+				});
+			});
+			
+			// Handle other month days
+			const tdsNot = tbody.querySelectorAll('td.fc-day-other');
+			tdsNot.forEach(dayEl => {
+				dayEl.style.removeProperty("background-color");
+			});
+		}
+
+		function addButtonFallbacks() {
+			// Check if navigation symbols are properly rendered, if not use fallbacks
+			const prevButton = document.querySelector('.fc-prev-button');
+			const nextButton = document.querySelector('.fc-next-button');
+			
+			if (prevButton) {
+				const prevText = prevButton.textContent.trim();
+				if (prevText === '‹' || prevText === '' || prevText.length === 0) {
+					// Check if the symbol is actually visible by measuring width
+					const testSpan = document.createElement('span');
+					testSpan.style.visibility = 'hidden';
+					testSpan.style.position = 'absolute';
+					testSpan.textContent = '‹';
+					document.body.appendChild(testSpan);
+					const symbolWidth = testSpan.offsetWidth;
+					document.body.removeChild(testSpan);
+					
+					if (symbolWidth < 5) { // Symbol not properly rendered
+						prevButton.textContent = '<';
+					}
+				}
+			}
+			
+			if (nextButton) {
+				const nextText = nextButton.textContent.trim();
+				if (nextText === '›' || nextText === '' || nextText.length === 0) {
+					const testSpan = document.createElement('span');
+					testSpan.style.visibility = 'hidden';
+					testSpan.style.position = 'absolute';
+					testSpan.textContent = '›';
+					document.body.appendChild(testSpan);
+					const symbolWidth = testSpan.offsetWidth;
+					document.body.removeChild(testSpan);
+					
+					if (symbolWidth < 5) { // Symbol not properly rendered
+						nextButton.textContent = '>';
+					}
+				}
+			}
+		}
+
+		function styleLogoutButton() {
+			const logoutButton = document.querySelector('.fc-logoutButton-button');
+			if (logoutButton) {
+				logoutButton.classList.add('logout-button');
+			}
+		}
+	</script>
+  </body>
+</html>

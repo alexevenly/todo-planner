@@ -1,0 +1,236 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css" id="main-style">
+    <link rel="stylesheet" href="style-modern.css" id="modern-style" disabled>
+    <script src="script.js"></script>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+    <div class="theme-toggle-container">
+      <label class="theme-toggle">
+        <input type="checkbox" id="theme-toggle-checkbox">
+        <span class="slider">
+          <span class="slider-text classic">Classic</span>
+          <span class="slider-text modern">Modern</span>
+        </span>
+      </label>
+    </div>
+    
+    <header>
+      <button id="home-button">Back</button>
+      <span id="appearing" style="display:none;"><p id="messageSave" style="color:red;">Your changes not saved! Do you want to leave anyway?</p><button id="continue-button">Continue anyway</button></span>
+      <h1>Date</h1>
+      <h2>Day of week</h2>
+      <div>
+        <button id="pie_chart_button">Show Pie Chart</button>
+        <button id="logout-button" class="logout-button">Logout</button>
+      </div>
+    <div id="pie_chart_overlay">
+      <div id="pie_chart_container">
+        <canvas id="pie_chart_canvas"></canvas>
+        <button id="close_pie_chart_button">Close</button>
+      </div>
+    </div>
+    </header>
+    <div class="container">
+      <div class="left">
+		<div class="block">
+		  <div class="header">
+			<h3>Достижения за день</h3>
+		  </div>
+		  <ul id="priorities">
+		  </ul>
+		</div>
+        <div class="block">
+		  <div class="header">
+            <h3>TODO list</h3>
+		  </div>
+          <ul id="todo">
+          </ul>
+        </div>
+        <div class="block">
+		  <div class="header">
+            <h3>Чек лист</h3>
+		  </div>
+          <ul id="memento">
+          </ul>
+        </div>
+      </div>
+      <div class="right">
+        <div id="table_header">
+          <p>Plan & Schedule</p>
+          <span id="time_add">
+            <label>Start time:</label>
+            <input type="time" timeFormat="24" step="900" title="start time" id="from">
+            <label>End time:</label>
+            <input type="time" timeFormat="24" step="900" title="end time" id="to">
+            <label>Content:</label>
+            <input type="text" title="text" id="content">
+            <button id="add_time_period">Add time period</button>
+          </span>
+        </div>
+        <div id="time_overlay_holder"><!--div id="time_overlay">TEST</div--></div>
+        <table id="time">
+          <tbody>
+            <tr>
+              <td>00:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>01:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>02:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>03:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>04:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>05:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>06:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>07:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>08:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>09:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>10:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>11:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>12:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>13:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>14:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>15:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>16:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>17:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>18:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>19:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>20:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>21:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>22:00</td>
+              <td></td>
+            </tr>
+			      <tr>
+              <td>23:00</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>24:00</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <script>
+      // Theme toggle functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the application
+        init();
+        
+        const themeToggle = document.getElementById('theme-toggle-checkbox');
+        const mainStyle = document.getElementById('main-style');
+        const modernStyle = document.getElementById('modern-style');
+        
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'classic';
+        if (savedTheme === 'modern') {
+          themeToggle.checked = true;
+          mainStyle.disabled = true;
+          modernStyle.disabled = false;
+        }
+        
+        themeToggle.addEventListener('change', function() {
+          if (this.checked) {
+            // Switch to modern theme
+            mainStyle.disabled = true;
+            modernStyle.disabled = false;
+            localStorage.setItem('theme', 'modern');
+          } else {
+            // Switch to classic theme
+            mainStyle.disabled = false;
+            modernStyle.disabled = true;
+            localStorage.setItem('theme', 'classic');
+          }
+        });
+        
+        // Logout functionality
+        const logoutButton = document.getElementById('logout-button');
+        logoutButton.addEventListener('click', async function() {
+          try {
+            const response = await fetch('/auth/logout', {
+              method: 'POST',
+              credentials: 'include'
+            });
+            
+            if (response.ok) {
+              window.location.href = '/login.html';
+            } else {
+              alert('Logout failed. Please try again.');
+            }
+          } catch (error) {
+            console.error('Logout error:', error);
+            alert('Logout failed. Please try again.');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

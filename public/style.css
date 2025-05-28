@@ -1,0 +1,291 @@
+body {
+background-color: #F7F7F7;
+font-family: 'Arial', sans-serif;
+}
+
+header {
+background-color: lightgreen;
+padding: 20px;
+text-align: center;
+display: flex;
+justify-content: space-between;
+box-shadow: 0px 0px 10px #BBB;
+margin-top: 30px !important;
+position: fixed;
+top: 0px;
+left: 5%;
+z-index: 9999;
+}
+
+header h1, header h2 {
+margin: 0;
+}
+
+header button {
+padding: 10px 20px;
+font-size: 1.2em;
+border-radius: 10px;
+background-color: lightgray;
+border: none;
+cursor: pointer;
+margin-top: 10px;
+}
+
+header #appearing {
+display: flex;
+align-items: center;
+}
+
+header #messageSave {
+margin: 0 10px;
+font-size: 1.2em;
+}
+
+header, .container {
+width: 88%;
+margin: auto;
+}
+
+.container {
+display: flex;
+padding: 40px;
+justify-content: center;
+}
+
+.left {
+width: 40%;
+padding-right: 20px;
+position: fixed;
+top: 150px;
+left: 5%;
+}
+
+.block {
+padding: 20px;
+background-color: #E0E0E0;
+margin-bottom: 20px;
+box-shadow: 0px 0px 10px #BBB;
+border-radius: 5px;
+}
+
+.block h3 {
+font-size: 1.5em;
+font-weight: bold;
+margin: 0;
+}
+
+.block button, #add_period {
+background-color: lightgreen;
+color: white;
+padding: 10px 20px;
+border: none;
+border-radius: 5px;
+font-size: 1.2em;
+font-weight: bold;
+cursor: pointer;
+}
+
+#table_header {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: space-between;
+border-spacing: 2px;
+border: 1px solid grey;
+font-variant: normal;
+position: fixed;
+left: 46.5%;
+right: 6.25%;
+z-index: 1000;
+background-color: #c7bfbf;
+}
+
+#time_add {
+display: flex;
+justify-content: space-evenly;
+width: 100%;
+}
+
+#time_delete_button {
+position: absolute;
+left: 95%;
+top: 10%;
+}
+
+#table_header p {
+margin: auto;
+text-align: center;
+font-size: 1.5em;
+font-weight: bold;
+}
+
+#add_period {
+margin-right: 10px;
+position: absolute;
+right: 0;
+top: 20px;
+}
+
+.block .header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+width: 100%;
+}
+
+li {
+list-style-type: none;
+}
+
+#priorities {
+margin-top: 10px;
+}
+
+#priorities input {
+display: none;
+}
+
+.right {
+width: 60%;
+padding-left: 20px;
+margin-left: 45%;
+margin-top: 100px;
+position: relative;
+}
+
+table:not(.fc-scrollgrid):not(.fc-col-header):not(.fc-scrollgrid-sync-table) {
+border-collapse: collapse;
+width: 100%;
+font-size: 18px;
+margin-top: 120px;
+}
+
+tr:nth-child(even) {
+background-color: #f2f2f2;
+}
+
+tr {
+height: 80px;
+}
+
+#table_header {
+height: 100px;
+}
+
+th,
+td {
+border: 1px solid #BBB;
+padding: 20px;
+text-align: center;
+}
+
+th {
+background-color: #E0E0E0;
+font-weight: bold;
+}
+
+#time td:first-child {
+width: 20%;
+font-weight: bold;
+}
+
+#time_overlay {
+position: absolute;
+/*top: 120px;
+height: 78px;
+background-color: #ff000075;
+*/
+width: 90%;
+left: 6%;
+justify-content: center;
+display: flex;
+align-items: center;
+border: 2px solid red;
+border-radius: 10px;
+box-shadow: 0px 0px 10px #bbb;
+}
+
+/**calendar**/
+.calendar-container {
+display: flex;
+justify-content: center;
+align-items: center;
+height: 80vh;
+}
+
+#calendar {
+width: 90%;
+height: 90%;
+background-color: lightgray;
+border-radius: 10px;
+box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+.fc-header-toolbar {
+background-color: lightgreen;
+padding: 20px;
+display: flex;
+justify-content: space-between;
+}
+
+.fc-header-toolbar button {
+padding: 10px !important;
+}
+
+/**pie chart**/
+#pie_chart_overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0,0,0,0.5);
+display: none;
+}
+
+#pie_chart_container {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background-color: #fff;
+padding: 20px;
+border-radius: 5px;
+}
+
+#pie_chart_canvas {
+width: 1200px;
+height: 800px;
+}
+
+#close_pie_chart_button {
+margin-top: 20px;
+width: 100%;
+}
+
+/* Logout button positioning */
+.logout-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.logout-button:hover {
+  background-color: #c82333;
+}
+
+/* Theme toggle container positioning */
+.theme-toggle-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}

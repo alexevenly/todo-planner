@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Minimalistic Calendar</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <div class="calendar-container">
+      <div id="calendar"></div>
+    </div>
+    <!-- FullCalendar library -->
+    <script src="index.global.min.js" type="text/javascript"></script>
+    <script>
+		let timeoutId;
+
+		document.addEventListener('DOMContentLoaded', function() {
+			const calendarEl = document.getElementById('calendar');
+			const calendar = new FullCalendar.Calendar(calendarEl);
+			calendar.render();
+			runLoop();
+		})
+
+		document.addEventListener("DOMSubtreeModified", function() {
+			clearTimeout(timeoutId);
+			timeoutId = setTimeout(() => {
+				runLoop();
+			}, 1);
+		});
+
+		function runLoop() {
+			const tbody = document.querySelector('tbody[role="presentation"]');
+			const tds = tbody.querySelectorAll('td:not(.fc-day-other)');
+			tds.forEach(dayEl => {
+				if (dayEl.classList.contains('fc-day-today')) {
+					dayEl.style.border = 'solid 2px yellow';
+				}
+				const date = dayEl.getAttribute('data-date')
+				fetch('/dates').then(function(response) {
+					return response.json();
+				})
+				.then(function(list) {
+					let isNew = true;
+					if (list.includes(date)) {
+						dayEl.style.backgroundColor = 'lightgreen';
+						isNew = false;
+					} else {
+						dayEl.style.backgroundColor = '#C0C0C0'; // gray
+					}
+					dayEl.addEventListener('click', function() {
+						const dateObject = new Date(date);
+						const dayOfWeek = dateObject.toLocaleString('default', { weekday: 'long' });
+						window.location.href = 'template.html?date=' + date + '&dayOfWeek=' + dayOfWeek + '&new=' + isNew;
+					})
+				})
+			})
+			//Redundant set of actions caused by inner implementation of FullCalendar module
+			const tdsNot = tbody.querySelectorAll('td.fc-day-other');
+			tdsNot.forEach(dayEl => {
+				dayEl.style.removeProperty("background-color"); // none
+			});
+		};
+	</script>
+  </body>
+</html>

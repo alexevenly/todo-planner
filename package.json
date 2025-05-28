@@ -1,0 +1,43 @@
+{
+  "name": "daily-planner",
+  "version": "1.0.0",
+  "description": "A daily planner application with calendar and task management",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js",
+    "migrate": "knex migrate:latest",
+    "seed": "knex seed:run",
+    "setup": "npm run migrate && npm run seed",
+    "migrate:rollback": "knex migrate:rollback",
+    "migrate:make": "knex migrate:make",
+    "seed:make": "knex seed:make"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "knex": "^3.0.1",
+    "pg": "^8.11.3",
+    "sqlite3": "^5.1.6",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3",
+    "express-session": "^1.17.3",
+    "connect-session-knex": "^3.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "planner",
+    "calendar",
+    "productivity",
+    "tasks"
+  ],
+  "author": "",
+  "license": "MIT"
+} 
