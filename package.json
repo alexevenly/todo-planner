@@ -1,6 +1,6 @@
 {
   "name": "daily-planner",
-  "version": "1.0.0",
+  "version": "1.0.18",
   "description": "A daily planner application with calendar and task management",
   "main": "app.js",
   "scripts": {

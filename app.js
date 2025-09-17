@@ -581,6 +581,248 @@ app.get('/auth/user', auth.requireAuth, (req, res) => {
   res.json({ user: req.user });
 });
 
+// Calendar API endpoints
+
+// Get all calendar colors for user
+app.get('/api/calendar/colors', auth.requireAuth, async (req, res) => {
+  try {
+    const colors = await db('calendar_colors')
+      .select('*')
+      .where('user_id', req.user.id)
+      .orderBy('created_at', 'asc');
+    
+    res.json(colors);
+  } catch (error) {
+    console.error('Error fetching calendar colors:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add new calendar color
+app.post('/api/calendar/colors', auth.requireAuth, async (req, res) => {
+  try {
+    const { color, description } = req.body;
+    
+    if (!color || !description) {
+      return res.status(400).json({ error: 'Color and description are required' });
+    }
+    
+    // Validate hex color format
+    if (!/^#[0-9A-F]{6}$/i.test(color)) {
+      return res.status(400).json({ error: 'Invalid color format. Use hex format like #FF0000' });
+    }
+    
+    // Check if color already exists for this user
+    const existingColor = await db('calendar_colors')
+      .where('user_id', req.user.id)
+      .where('color', color)
+      .first();
+    
+    if (existingColor) {
+      return res.status(400).json({ error: 'Color already exists' });
+    }
+    
+    const [newColor] = await db('calendar_colors')
+      .insert({
+        user_id: req.user.id,
+        color,
+        description
+      })
+      .returning('*');
+    
+    res.status(201).json(newColor);
+  } catch (error) {
+    console.error('Error adding calendar color:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update calendar color
+app.put('/api/calendar/colors/:id', auth.requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { color, description } = req.body;
+    
+    if (!color || !description) {
+      return res.status(400).json({ error: 'Color and description are required' });
+    }
+    
+    // Validate hex color format
+    if (!/^#[0-9A-F]{6}$/i.test(color)) {
+      return res.status(400).json({ error: 'Invalid color format. Use hex format like #FF0000' });
+    }
+    
+    // Check if color already exists for this user (excluding current record)
+    const existingColor = await db('calendar_colors')
+      .where('user_id', req.user.id)
+      .where('color', color)
+      .where('id', '!=', id)
+      .first();
+    
+    if (existingColor) {
+      return res.status(400).json({ error: 'Color already exists' });
+    }
+    
+    const updatedColor = await db('calendar_colors')
+      .where('id', id)
+      .where('user_id', req.user.id)
+      .update({
+        color,
+        description,
+        updated_at: new Date()
+      })
+      .returning('*');
+    
+    if (updatedColor.length === 0) {
+      return res.status(404).json({ error: 'Color not found' });
+    }
+    
+    res.json(updatedColor[0]);
+  } catch (error) {
+    console.error('Error updating calendar color:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete calendar color
+app.delete('/api/calendar/colors/:id', auth.requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // First, remove all date assignments for this color
+    await db('calendar_dates')
+      .where('color_id', id)
+      .where('user_id', req.user.id)
+      .del();
+    
+    // Then delete the color
+    const deleted = await db('calendar_colors')
+      .where('id', id)
+      .where('user_id', req.user.id)
+      .del();
+    
+    if (deleted === 0) {
+      return res.status(404).json({ error: 'Color not found' });
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting calendar color:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get calendar dates for a specific month
+app.get('/api/calendar/dates', auth.requireAuth, async (req, res) => {
+  try {
+    const { year, month } = req.query;
+    
+    if (!year || !month) {
+      return res.status(400).json({ error: 'Year and month are required' });
+    }
+    
+    // Get start and end dates for the month
+    const startDate = `${year}-${month.padStart(2, '0')}-01`;
+    const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+    
+    const dates = await db('calendar_dates')
+      .select('calendar_dates.*', 'calendar_colors.color', 'calendar_colors.description')
+      .join('calendar_colors', 'calendar_dates.color_id', 'calendar_colors.id')
+      .where('calendar_dates.user_id', req.user.id)
+      .whereBetween('calendar_dates.date', [startDate, endDate])
+      .orderBy('calendar_dates.date', 'asc');
+    
+    res.json(dates);
+  } catch (error) {
+    console.error('Error fetching calendar dates:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Set color for a specific date
+app.post('/api/calendar/dates', auth.requireAuth, async (req, res) => {
+  try {
+    const { date, color_id } = req.body;
+    
+    if (!date || !color_id) {
+      return res.status(400).json({ error: 'Date and color_id are required' });
+    }
+    
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+    }
+    
+    // Check if color belongs to user
+    const color = await db('calendar_colors')
+      .where('id', color_id)
+      .where('user_id', req.user.id)
+      .first();
+    
+    if (!color) {
+      return res.status(400).json({ error: 'Color not found' });
+    }
+    
+    // Upsert the date assignment
+    const existingDate = await db('calendar_dates')
+      .where('user_id', req.user.id)
+      .where('date', date)
+      .first();
+    
+    if (existingDate) {
+      const updated = await db('calendar_dates')
+        .where('user_id', req.user.id)
+        .where('date', date)
+        .update({
+          color_id,
+          updated_at: new Date()
+        })
+        .returning('*');
+      
+      res.json(updated[0]);
+    } else {
+      const [newDate] = await db('calendar_dates')
+        .insert({
+          user_id: req.user.id,
+          date,
+          color_id
+        })
+        .returning('*');
+      
+      res.status(201).json(newDate);
+    }
+  } catch (error) {
+    console.error('Error setting calendar date:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Remove color from a specific date
+app.delete('/api/calendar/dates/:date', auth.requireAuth, async (req, res) => {
+  try {
+    const { date } = req.params;
+    
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+    }
+    
+    const deleted = await db('calendar_dates')
+      .where('user_id', req.user.id)
+      .where('date', date)
+      .del();
+    
+    if (deleted === 0) {
+      return res.status(404).json({ error: 'Date not found' });
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error removing calendar date:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Protected Routes (require authentication)
 
 // Get all available dates
