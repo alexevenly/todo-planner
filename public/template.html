@@ -13,29 +13,29 @@
       <label class="theme-toggle">
         <input type="checkbox" id="theme-toggle-checkbox">
         <span class="slider">
-          <span class="slider-text classic">Classic</span>
-          <span class="slider-text modern">Modern</span>
+          <span class="slider-text classic">Классический</span>
+          <span class="slider-text modern">Современный</span>
         </span>
       </label>
     </div>
     
     <header>
-      <button id="home-button">Back</button>
-      <span id="appearing" style="display:none;"><p id="messageSave" style="color:red;">Your changes not saved! Do you want to leave anyway?</p><button id="continue-button">Continue anyway</button></span>
+      <button id="home-button">Назад</button>
+      <span id="appearing" style="display:none;"><p id="messageSave" style="color:red;">Ваши изменения не сохранены! Вы хотите уйти в любом случае?</p><button id="continue-button">Продолжить в любом случае</button></span>
       <div class="header-title">
-        <h1>Date</h1>
-        <h2>Day of week</h2>
+        <h1>Дата</h1>
+        <h2>День недели</h2>
       </div>
       <div class="header-buttons">
-        <button id="pie_chart_button">Show Pie Chart</button>
-        <button id="logout-button" class="logout-button">Logout</button>
+        <button id="pie_chart_button">Показать Круговую Диаграмму</button>
+        <button id="logout-button" class="logout-button">Выйти</button>
       </div>
     </header>
     
     <div id="pie_chart_overlay">
       <div id="pie_chart_container">
         <canvas id="pie_chart_canvas"></canvas>
-        <button id="close_pie_chart_button">Close</button>
+        <button id="close_pie_chart_button">Закрыть</button>
       </div>
     </div>
     <div class="container">
@@ -49,7 +49,7 @@
 		</div>
         <div class="block">
 		  <div class="header">
-            <h3>TODO list</h3>
+            <h3>Список дел</h3>
 		  </div>
           <ul id="todo">
           </ul>
@@ -64,15 +64,15 @@
       </div>
       <div class="right">
         <div id="table_header">
-          <p>Plan & Schedule</p>
+          <p>План и Расписание</p>
           <span id="time_add">
-            <label>Start time:</label>
+            <label>Время начала:</label>
             <input type="time" timeFormat="24" step="900" title="start time" id="from">
-            <label>End time:</label>
+            <label>Время окончания:</label>
             <input type="time" timeFormat="24" step="900" title="end time" id="to">
-            <label>Content:</label>
+            <label>Содержание:</label>
             <input type="text" title="text" id="content">
-            <button id="add_time_period">Add time period</button>
+            <button id="add_time_period">Добавить период времени</button>
           </span>
         </div>
         <div id="time_overlay_holder"><!--div id="time_overlay">TEST</div--></div>
@@ -227,11 +227,11 @@
             if (response.ok) {
               window.location.href = '/login.html';
             } else {
-              alert('Logout failed. Please try again.');
+              alert('Ошибка выхода. Попробуйте еще раз.');
             }
           } catch (error) {
             console.error('Logout error:', error);
-            alert('Logout failed. Please try again.');
+            alert('Ошибка выхода. Попробуйте еще раз.');
           }
         });
       });

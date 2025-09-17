@@ -24,7 +24,7 @@ class CalendarModal {
       <div id="calendar-modal" class="calendar-modal">
         <div class="calendar-modal-content">
           <div class="calendar-modal-header">
-            <h3>Calendar & Color Legend</h3>
+            <h3>Календарь и Легенда</h3>
             <button class="calendar-modal-close" id="calendar-modal-close">&times;</button>
           </div>
           <div class="calendar-modal-body">
@@ -41,25 +41,25 @@ class CalendarModal {
               
               <div class="color-legend">
                 <div class="color-legend-header">
-                  <h4 class="color-legend-title">Color Legend</h4>
-                  <button class="add-color-btn" id="add-color-btn">+ Add Color</button>
+                  <h4 class="color-legend-title">Цветовая Легенда</h4>
+                  <button class="add-color-btn" id="add-color-btn">+ Добавить Цвет</button>
                 </div>
                 
                 <div class="add-color-form" id="add-color-form">
                   <div class="add-color-form-group">
                     <label>
-                      Color
+                      Цвет
                       <input type="color" id="color-input" value="#FF0000">
                     </label>
                     <label>
-                      Description
-                      <input type="text" id="description-input" placeholder="Enter description">
+                      Описание
+                      <input type="text" id="description-input" placeholder="Введите описание">
                     </label>
                     <div class="color-preview" id="color-preview"></div>
                   </div>
                   <div class="add-color-form-actions">
-                    <button class="add-color-save" id="save-color-btn">Save</button>
-                    <button class="add-color-cancel" id="cancel-color-btn">Cancel</button>
+                    <button class="add-color-save" id="save-color-btn">Сохранить</button>
+                    <button class="add-color-cancel" id="cancel-color-btn">Отмена</button>
                   </div>
                 </div>
                 
@@ -70,7 +70,7 @@ class CalendarModal {
         </div>
       </div>
       
-      <button class="calendar-toggle-btn" id="calendar-toggle-btn" title="Open Calendar">
+      <button class="calendar-toggle-btn" id="calendar-toggle-btn" title="Открыть Календарь">
         📅
       </button>
     `;
@@ -195,13 +195,13 @@ class CalendarModal {
 
     // Set title
     const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
     ];
     title.textContent = `${monthNames[this.currentMonth]} ${this.currentYear}`;
 
     // Set weekdays
-    const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const weekdayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     weekdays.innerHTML = weekdayNames.map(day => 
       `<div class="mini-calendar-weekday">${day}</div>`
     ).join('');
@@ -210,7 +210,8 @@ class CalendarModal {
     const firstDay = new Date(this.currentYear, this.currentMonth, 1);
     const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
+    // Adjust for Monday start: Sunday=0 becomes 6, Monday=1 becomes 0, etc.
+    const startingDayOfWeek = (firstDay.getDay() + 6) % 7;
 
     // Clear days
     days.innerHTML = '';
@@ -259,7 +260,7 @@ class CalendarModal {
 
   showColorSelection(date) {
     if (this.colors.length === 0) {
-      alert('Please add some colors to the legend first!');
+      alert('Пожалуйста, сначала добавьте цвета в легенду!');
       return;
     }
 
@@ -377,11 +378,11 @@ class CalendarModal {
         this.updateCalendarDayColor(date, colorId);
       } else {
         const error = await response.json();
-        alert('Error setting date color: ' + error.error);
+        alert('Ошибка установки цвета даты: ' + error.error);
       }
     } catch (error) {
       console.error('Error setting date color:', error);
-      alert('Error setting date color');
+      alert('Ошибка установки цвета даты');
     }
   }
 
@@ -396,11 +397,11 @@ class CalendarModal {
         this.updateCalendarDayColor(date, null);
       } else {
         const error = await response.json();
-        alert('Error removing date color: ' + error.error);
+        alert('Ошибка удаления цвета даты: ' + error.error);
       }
     } catch (error) {
       console.error('Error removing date color:', error);
-      alert('Error removing date color');
+      alert('Ошибка удаления цвета даты');
     }
   }
 
@@ -520,7 +521,7 @@ class CalendarModal {
     const description = document.getElementById('description-input').value.trim();
 
     if (!description) {
-      alert('Please enter a description');
+      alert('Пожалуйста, введите описание');
       return;
     }
 
@@ -540,11 +541,11 @@ class CalendarModal {
         this.hideAddColorForm();
       } else {
         const error = await response.json();
-        alert('Error saving color: ' + error.error);
+        alert('Ошибка сохранения цвета: ' + error.error);
       }
     } catch (error) {
       console.error('Error saving color:', error);
-      alert('Error saving color');
+      alert('Ошибка сохранения цвета');
     }
   }
 
@@ -686,16 +687,16 @@ class CalendarModal {
         }
       } else {
         const error = await response.json();
-        alert('Error updating color: ' + error.error);
+        alert('Ошибка обновления цвета: ' + error.error);
       }
     } catch (error) {
       console.error('Error updating color:', error);
-      alert('Error updating color');
+      alert('Ошибка обновления цвета');
     }
   }
 
   async deleteColor(colorId) {
-    if (!confirm('Are you sure you want to delete this color? This will also remove it from all dates.')) {
+    if (!confirm('Вы уверены, что хотите удалить этот цвет? Это также удалит его со всех дат.')) {
       return;
     }
 
@@ -716,11 +717,11 @@ class CalendarModal {
         });
       } else {
         const error = await response.json();
-        alert('Error deleting color: ' + error.error);
+        alert('Ошибка удаления цвета: ' + error.error);
       }
     } catch (error) {
       console.error('Error deleting color:', error);
-      alert('Error deleting color');
+      alert('Ошибка удаления цвета');
     }
   }
 }

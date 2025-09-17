@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Minimalistic Calendar</title>
+    <title>Минималистичный Календарь</title>
     <link rel="stylesheet" type="text/css" href="style.css" id="main-style">
     <link rel="stylesheet" type="text/css" href="style-modern.css" id="modern-style" disabled>
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -14,8 +14,8 @@
       <label class="theme-toggle">
         <input type="checkbox" id="theme-toggle-checkbox">
         <span class="slider">
-          <span class="slider-text classic">Classic</span>
-          <span class="slider-text modern">Modern</span>
+          <span class="slider-text classic">Классический</span>
+          <span class="slider-text modern">Современный</span>
         </span>
       </label>
     </div>
@@ -27,8 +27,8 @@
           <h2 id="month-year"></h2>
           <button id="next-btn" class="nav-btn">›</button>
           <div class="header-buttons">
-            <button id="today-btn" class="today-btn">Today</button>
-            <button id="logout-btn" class="logout-btn">Logout</button>
+            <button id="today-btn" class="today-btn">Сегодня</button>
+            <button id="logout-btn" class="logout-btn">Выйти</button>
           </div>
         </div>
         <div class="calendar-grid">
@@ -91,11 +91,11 @@
 					if (response.ok) {
 						window.location.href = '/login.html';
 					} else {
-						alert('Logout failed. Please try again.');
+						alert('Ошибка выхода. Попробуйте еще раз.');
 					}
 				} catch (error) {
 					console.error('Logout error:', error);
-					alert('Logout failed. Please try again.');
+					alert('Ошибка выхода. Попробуйте еще раз.');
 				}
 			});
 			

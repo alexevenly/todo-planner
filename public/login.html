@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Daily Planner</title>
+    <title>Вход - Ежедневный Планировщик</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <style>
@@ -190,31 +190,31 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>Daily Planner</h1>
-            <p>Sign in to your account</p>
+            <h1>Ежедневный Планировщик</h1>
+            <p>Войдите в свой аккаунт</p>
         </div>
 
         <div id="error-message" class="error-message"></div>
 
         <form id="login-form">
             <div class="form-group">
-                <label for="username">Username or Email</label>
+                <label for="username">Имя пользователя или Email</label>
                 <input type="text" id="username" name="username" required autocomplete="username">
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">Пароль</label>
                 <input type="password" id="password" name="password" required autocomplete="current-password">
             </div>
 
             <button type="submit" class="login-button" id="login-button">
-                <span id="button-text">Sign In</span>
+                <span id="button-text">Войти</span>
                 <span id="button-loading" class="loading" style="display: none;"></span>
             </button>
         </form>
 
         <div class="register-link">
-            <p>Don't have an account? <a href="/register.html">Create one here</a></p>
+            <p>Нет аккаунта? <a href="/register.html">Создайте его здесь</a></p>
         </div>
     </div>
 
@@ -255,11 +255,11 @@
                     window.location.href = '/';
                 } else {
                     // Show error message
-                    errorMessage.textContent = result.error || 'Login failed. Please try again.';
+                    errorMessage.textContent = result.error || 'Ошибка входа. Попробуйте еще раз.';
                     errorMessage.style.display = 'block';
                 }
             } catch (error) {
-                errorMessage.textContent = 'Network error. Please check your connection and try again.';
+                errorMessage.textContent = 'Ошибка сети. Проверьте подключение и попробуйте еще раз.';
                 errorMessage.style.display = 'block';
             } finally {
                 // Reset button state

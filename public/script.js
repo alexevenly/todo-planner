@@ -14,7 +14,7 @@ function init() {
 	let isNew = (isNewStr == "true");;
 	const date = new Date(dateString);
 	const options = { year: 'numeric', month: 'long', day: 'numeric' };
-	const formattedDate = date.toLocaleDateString('en-GB', options);
+	const formattedDate = date.toLocaleDateString('ru-RU', options);
 	document.querySelector('h1').textContent = formattedDate;
 	document.querySelector('h2').textContent = dayOfWeek;
 
@@ -401,7 +401,7 @@ function init() {
 				window.location.search = searchParams.toString();
 			}
 		  } else {
-			alert("Saving error!")
+			alert("Ошибка сохранения!")
 			console.error("Page save failed!");
 		  }
 		};
@@ -570,7 +570,7 @@ function init() {
 			ctx.font = '16px Arial';
 			ctx.fillStyle = '#333';
 			ctx.textAlign = 'center';
-			ctx.fillText('No time periods to display', canvas.width / 2, canvas.height / 2);
+			ctx.fillText('Диапазоны времени для отображения не найдены', canvas.width / 2, canvas.height / 2);
 			return;
 		}
 		
