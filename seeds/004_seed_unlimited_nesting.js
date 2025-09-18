@@ -26,14 +26,15 @@ function parseCSVLine(line) {
 
 exports.seed = async function(knex) {
   // Get the first user
-  const users = await knex('users').select('*');
+  // Get the specific user ptaha-ha-ha@rambler.ru
+  const users = await knex('users').select('*').where('email', 'ptaha-ha-ha@rambler.ru');
   if (users.length === 0) {
-    console.log('No users found, skipping kanban data seeding');
+    console.log('User ptaha-ha-ha@rambler.ru not found, skipping kanban data seeding');
     return;
   }
   
   const userId = users[0].id;
-  console.log(`Seeding unlimited nesting kanban data for user ${userId}`);
+  console.log(`Seeding unlimited nesting kanban data for user ${userId} (ptaha-ha-ha@rambler.ru)`);
 
   // Clear existing data
   await knex('kanban_tasks_new').where('user_id', userId).del();

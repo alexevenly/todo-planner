@@ -12,7 +12,7 @@ async function removeAdminUser() {
     // Connect to production database and remove admin user
     const { stdout, stderr } = await execAsync(`
       PGPASSWORD=$DATABASE_PASSWORD psql $DATABASE_URL -c "
-        DELETE FROM users WHERE email = 'admin@example.com';
+        DELETE FROM users WHERE email = 'admin@example.com' OR username = 'admin';
         SELECT 'Admin user removed' as result;
       "
     `);

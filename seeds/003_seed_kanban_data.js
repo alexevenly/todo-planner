@@ -11,14 +11,14 @@ exports.seed = async function(knex) {
   await knex('kanban_labels').del();
   await knex('kanban_epics').del();
 
-  // Get the admin user ID
-  const adminUser = await knex('users').where('username', 'admin').first();
-  if (!adminUser) {
-    console.log('Admin user not found, skipping kanban data seeding');
+  // Get the specific user ptaha-ha-ha@rambler.ru
+  const user = await knex('users').where('email', 'ptaha-ha-ha@rambler.ru').first();
+  if (!user) {
+    console.log('User ptaha-ha-ha@rambler.ru not found, skipping kanban data seeding');
     return;
   }
 
-  const userId = adminUser.id;
+  const userId = user.id;
 
   // Parse CSV data
   const csvPath = path.join(__dirname, '../asana_data/Дела.csv');
