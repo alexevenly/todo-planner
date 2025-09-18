@@ -4,7 +4,7 @@
   "description": "A daily planner application with calendar and task management",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node startup.js",
     "dev": "node app.js",
     "migrate": "knex migrate:latest",
     "seed": "knex seed:run",
