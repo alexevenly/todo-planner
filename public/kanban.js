@@ -14,10 +14,8 @@ class KanbanApp {
 
     async init() {
         this.setupEventListeners();
-        this.createDefaultColumns();
         await this.loadData();
         this.ensureDefaultColumns();
-        this.autoImportIfNeeded();
         this.render();
     }
 
@@ -76,24 +74,10 @@ class KanbanApp {
     }
 
     ensureDefaultColumns() {
-        const defaultColumnIds = ['todo', 'in-progress', 'done'];
-        const defaultTitles = ['To Do', 'In Progress', 'Done'];
-        
-        defaultColumnIds.forEach((id, index) => {
-            const existingColumn = this.columns.find(col => col.id === id);
-            if (!existingColumn) {
-                console.log(`Adding missing default column: ${id}`);
-                this.columns.push({
-                    id: id,
-                    title: defaultTitles[index],
-                    tasks: []
-                });
-            }
-        });
-        
-        // Ensure we have at least the default columns
-        if (this.columns.length < 3) {
-            this.createDefaultColumns();
+        // Don't create columns automatically - let user manage their own columns
+        console.log(`Current columns: ${this.columns.length}`);
+        if (this.columns.length === 0) {
+            console.log('No columns found, but not creating them automatically');
         }
     }
 
@@ -155,8 +139,7 @@ class KanbanApp {
                 console.log('Loaded data from server with existing column assignments');
             } else {
                 console.log('No kanban data found, using defaults');
-                // Only call assignTasksToColumns() for default/fallback data
-                this.assignTasksToColumns();
+                // Don't call assignTasksToColumns() to avoid creating columns automatically
             }
         } catch (error) {
             console.error('Error loading kanban data:', error);
@@ -169,8 +152,7 @@ class KanbanApp {
                 this.labels = data.labels || [];
                 this.epics = data.epics || [];
                 
-                // Only call assignTasksToColumns() for localStorage fallback
-                this.assignTasksToColumns();
+                // Don't call assignTasksToColumns() to avoid creating columns automatically
             }
         }
     }
@@ -208,18 +190,11 @@ class KanbanApp {
     }
 
     ensureRequiredColumns() {
-        const requiredColumns = [
-            { id: 'todo', title: 'To Do' },
-            { id: 'in-progress', title: 'In Progress' },
-            { id: 'done', title: 'Done' }
-        ];
-        
-        requiredColumns.forEach(reqCol => {
-            if (!this.columns.find(c => c.id === reqCol.id)) {
-                console.log(`Creating missing column: ${reqCol.title}`);
-                this.createColumn(reqCol.id, reqCol.title);
-            }
-        });
+        // Don't automatically create columns - let user create them manually
+        // Only ensure we have at least 3 columns, but don't create specific ones
+        if (this.columns.length < 3) {
+            console.log(`Only ${this.columns.length} columns found, but not creating missing ones automatically`);
+        }
     }
 
     createColumn(id, title) {
@@ -438,7 +413,7 @@ class KanbanApp {
         }
 
         const taskHTML = `
-            <div class="task" data-task-id="${task.id}" draggable="true">
+            <div class="task ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" draggable="true">
                 <div class="task-title">${task.title}</div>
                 ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
                 <div class="task-meta">
@@ -873,18 +848,39 @@ class KanbanApp {
             newColumn.tasks.push(taskId);
         }
         
-        // Auto-complete subtasks if moved to "Done" column
-        if (newColumnId === 'done') {
+        // Auto-complete task and all subtasks if moved to "Done" column
+        console.log('Moving task to column:', newColumnId);
+        const newColumnTitle = this.columns.find(c => c.id === newColumnId)?.title;
+        console.log('Column title:', newColumnTitle);
+        
+        if (newColumnId === 'done' || newColumnTitle === 'Done') {
+            console.log('Marking task and subtasks as completed');
             const task = this.tasks.find(t => t.id === taskId);
-            if (task && task.subtasks) {
-                task.subtasks.forEach(subtask => {
-                    subtask.completed = true;
-                });
+            if (task) {
+                // Mark the main task as completed
+                task.completed = true;
+                console.log('Main task marked as completed:', task.title);
+                
+                // Mark all subtasks as completed recursively
+                if (task.subtasks) {
+                    this.markSubtasksCompleted(task.subtasks);
+                    console.log('Subtasks marked as completed:', task.subtasks.length);
+                }
             }
         }
         
         this.saveData();
         this.render();
+    }
+
+    markSubtasksCompleted(subtasks) {
+        subtasks.forEach(subtask => {
+            subtask.completed = true;
+            // Recursively mark nested subtasks
+            if (subtask.subtasks && subtask.subtasks.length > 0) {
+                this.markSubtasksCompleted(subtask.subtasks);
+            }
+        });
     }
 
     // Drag and Drop
