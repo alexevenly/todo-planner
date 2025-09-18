@@ -16,17 +16,17 @@ async function runMigrations() {
     console.log('⚠️  Migration failed, trying alternative approach...');
     console.log('Error:', error.message);
     
-    // Try to run the specific migration that should work
-    try {
-      console.log('🔄 Trying alternative migration...');
-      const { stdout, stderr } = await execAsync('npx knex migrate:up 012_skip_broken_migration.js');
-      if (stdout) console.log(stdout);
-      if (stderr) console.log(stderr);
-      console.log('✅ Alternative migration completed successfully');
-    } catch (altError) {
-      console.log('⚠️  Alternative migration also failed, but continuing...');
-      console.log('Alt Error:', altError.message);
-    }
+          // Try to run the specific migration that should work
+          try {
+            console.log('🔄 Trying alternative migration...');
+            const { stdout, stderr } = await execAsync('npx knex migrate:up 007_create_unlimited_nesting.js');
+            if (stdout) console.log(stdout);
+            if (stderr) console.log(stderr);
+            console.log('✅ Alternative migration completed successfully');
+          } catch (altError) {
+            console.log('⚠️  Alternative migration also failed, but continuing...');
+            console.log('Alt Error:', altError.message);
+          }
   }
 }
 

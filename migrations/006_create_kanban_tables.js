@@ -91,8 +91,7 @@ exports.up = function(knex) {
       table.timestamp('updated_at').defaultTo(knex.fn.now());
       
       table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
-      // Removed problematic foreign key constraints to avoid migration failure
-      table.foreign('column_id').references('column_id').inTable('kanban_columns').onDelete('CASCADE');
+      // Removed all problematic foreign key constraints to avoid migration failure
       table.unique(['user_id', 'task_id', 'column_id']);
     });
 };
