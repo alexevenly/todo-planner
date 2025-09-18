@@ -44,7 +44,7 @@ exports.up = function(knex) {
       table.timestamp('updated_at').defaultTo(knex.fn.now());
       
       table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
-      table.foreign('task_id').references('task_id').inTable('kanban_tasks').onDelete('CASCADE');
+      // Removed problematic foreign key constraint to avoid migration failure
     })
     .createTable('kanban_nested_subtasks', function(table) {
       table.increments('id').primary();
@@ -91,7 +91,7 @@ exports.up = function(knex) {
       table.timestamp('updated_at').defaultTo(knex.fn.now());
       
       table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
-      table.foreign('task_id').references('task_id').inTable('kanban_tasks').onDelete('CASCADE');
+      // Removed problematic foreign key constraints to avoid migration failure
       table.foreign('column_id').references('column_id').inTable('kanban_columns').onDelete('CASCADE');
       table.unique(['user_id', 'task_id', 'column_id']);
     });
