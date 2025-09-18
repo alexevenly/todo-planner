@@ -1,6 +1,29 @@
 const fs = require('fs');
 const path = require('path');
 
+// CSV parser for Node.js environment
+function parseCSVLine(line) {
+  const values = [];
+  let current = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      values.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  
+  values.push(current.trim());
+  return values;
+}
+
 exports.seed = async function(knex) {
   // Get the first user
   const users = await knex('users').select('*');
@@ -24,8 +47,14 @@ exports.seed = async function(knex) {
   }
 
   const csvContent = fs.readFileSync(csvPath, 'utf8');
-  const lines = csvContent.split('\n');
-  const headers = lines[0].split(',');
+  const lines = csvContent.split('\n').filter(line => line.trim() !== '');
+  
+  if (lines.length === 0) {
+    console.log('CSV file is empty, skipping kanban data seeding');
+    return;
+  }
+
+  const headers = parseCSVLine(lines[0]);
   
   console.log('Headers:', headers);
   console.log(`Found ${lines.length - 1} records`);
@@ -66,9 +95,11 @@ exports.seed = async function(knex) {
   // Debug: Check if ВНЖ Испании is in the records
   const vnzhRecord = records.find(record => record[4] && record[4].includes('ВНЖ Испании'));
   if (vnzhRecord) {
-    console.log('Found ВНЖ Испании record');
+    console.log('Found ВНЖ Испании record:', vnzhRecord[4]);
   } else {
     console.log('ВНЖ Испании not found in records');
+    // Let's see what records we do have
+    console.log('First few record titles:', records.slice(0, 5).map(r => r[4]));
   }
 
   // Create task map for parent-child relationships
@@ -139,43 +170,9 @@ exports.seed = async function(knex) {
     console.log(`Inserted ${tasks.length} tasks with unlimited nesting`);
   }
 
-  // Create default columns
-  const defaultColumns = [
-    { id: 'column-1', title: 'To Do' },
-    { id: 'column-2', title: 'In Progress' },
-    { id: 'column-3', title: 'Done' }
-  ];
-
-  for (let i = 0; i < defaultColumns.length; i++) {
-    await knex('kanban_columns').insert({
-      user_id: userId,
-      column_id: defaultColumns[i].id,
-      title: defaultColumns[i].title,
-      order_index: i
-    });
-  }
+  // Don't create columns automatically - let the user create them manually
+  console.log('Skipping automatic column creation - user will create columns manually');
 
   console.log('Seeded unlimited nesting kanban data successfully');
 };
 
-function parseCSVLine(line) {
-  const values = [];
-  let current = '';
-  let inQuotes = false;
-  
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === ',' && !inQuotes) {
-      values.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  
-  values.push(current.trim());
-  return values;
-}
