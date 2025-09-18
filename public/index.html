@@ -27,6 +27,7 @@
           <h2 id="month-year"></h2>
           <button id="next-btn" class="nav-btn">›</button>
           <div class="header-buttons">
+            <button id="kanban-btn" class="kanban-btn">Доска задач</button>
             <button id="today-btn" class="today-btn">Сегодня</button>
             <button id="logout-btn" class="logout-btn">Выйти</button>
           </div>
@@ -74,6 +75,10 @@
 			document.getElementById('next-btn').addEventListener('click', () => {
 				currentDate.setMonth(currentDate.getMonth() + 1);
 				renderCalendar();
+			});
+			
+			document.getElementById('kanban-btn').addEventListener('click', () => {
+				window.location.href = '/kanban.html';
 			});
 			
 			document.getElementById('today-btn').addEventListener('click', () => {

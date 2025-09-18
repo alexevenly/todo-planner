@@ -268,7 +268,7 @@ gap: 10px;
 align-items: center;
 }
 
-.today-btn, .logout-btn {
+.today-btn, .logout-btn, .kanban-btn {
 background-color: lightgray !important;
 border: none !important;
 border-radius: 5px !important;
@@ -277,8 +277,17 @@ cursor: pointer !important;
 font-weight: bold !important;
 }
 
-.today-btn:hover, .logout-btn:hover {
+.today-btn:hover, .logout-btn:hover, .kanban-btn:hover {
 background-color: #bbb !important;
+}
+
+.kanban-btn {
+background-color: #007bff !important;
+color: white !important;
+}
+
+.kanban-btn:hover {
+background-color: #0056b3 !important;
 }
 
 .logout-btn {

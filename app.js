@@ -823,6 +823,223 @@ app.delete('/api/calendar/dates/:date', auth.requireAuth, async (req, res) => {
   }
 });
 
+// Kanban API endpoints
+// Get all kanban data for user
+app.get('/api/kanban/data', auth.requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Get columns
+    const columns = await db('kanban_columns')
+      .select('*')
+      .where('user_id', userId)
+      .orderBy('order_index');
+    
+    // Get all tasks using the new unlimited nesting structure
+    const tasks = await db('kanban_tasks_new')
+      .select('*')
+      .where('user_id', userId)
+      .orderBy('order_index', 'asc');
+    
+    // Get labels
+    const labels = await db('kanban_labels')
+      .select('*')
+      .where('user_id', userId);
+    
+    // Get epics
+    const epics = await db('kanban_epics')
+      .select('*')
+      .where('user_id', userId);
+    
+    // Get task assignments
+    const assignments = await db('kanban_task_assignments')
+      .select('*')
+      .where('user_id', userId);
+
+    // Build hierarchical structure
+    const taskMap = new Map();
+    const rootTasks = [];
+
+    // First pass: create task objects
+    tasks.forEach(task => {
+      const taskObj = {
+        id: task.task_id,
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        status: task.status,
+        labels: JSON.parse(task.labels || '[]'),
+        epic: task.epic,
+        parentTask: task.parent_id,
+        dueDate: task.due_date,
+        createdAt: task.created_at_date,
+        subtasks: [],
+        subtasksExpanded: task.subtasks_expanded || false, // Collapsed by default
+        completed: task.completed,
+        taskType: task.task_type
+      };
+      taskMap.set(task.task_id, taskObj);
+    });
+
+    // Second pass: build hierarchy - only root tasks (no parent_id) should be in rootTasks
+    tasks.forEach(task => {
+      const taskObj = taskMap.get(task.task_id);
+      if (task.parent_id) {
+        const parent = taskMap.get(task.parent_id);
+        if (parent) {
+          parent.subtasks.push(taskObj);
+        }
+      } else {
+        // Only add to rootTasks if it's a main task (task_type = 'task')
+        if (task.task_type === 'task') {
+          rootTasks.push(taskObj);
+        }
+      }
+    });
+    
+    // Debug: Check if subtasks have subtasksExpanded property
+    rootTasks.forEach(task => {
+      if (task.subtasks && task.subtasks.length > 0) {
+        task.subtasks.forEach(subtask => {
+          if (subtask.subtasks && subtask.subtasks.length > 0) {
+            console.log(`Subtask "${subtask.title}" has subtasks, subtasksExpanded:`, subtask.subtasksExpanded);
+          }
+        });
+      }
+    });
+    
+    // Process columns to include task assignments
+    const processedColumns = columns.map(column => {
+      const columnTasks = assignments
+        .filter(assignment => assignment.column_id === column.column_id)
+        .sort((a, b) => a.order_index - b.order_index)
+        .map(assignment => assignment.task_id);
+      
+      return {
+        id: column.column_id,
+        title: column.title,
+        tasks: columnTasks
+      };
+    });
+    
+    res.json({
+      columns: processedColumns,
+      tasks: rootTasks,
+      labels: labels.map(label => ({ name: label.name, color: label.color })),
+      epics: epics.map(epic => ({ name: epic.name, color: epic.color }))
+    });
+  } catch (error) {
+    console.error('Error fetching kanban data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Save kanban data
+app.post('/api/kanban/data', auth.requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { columns, tasks, labels, epics } = req.body;
+    
+    console.log('Received kanban data save request for user:', userId);
+    console.log('Columns:', columns.length, 'Tasks:', tasks.length);
+    
+    // Start transaction
+    await db.transaction(async (trx) => {
+      // Clear existing data
+      await trx('kanban_task_assignments').where('user_id', userId).del();
+      await trx('kanban_tasks_new').where('user_id', userId).del();
+      await trx('kanban_columns').where('user_id', userId).del();
+      await trx('kanban_labels').where('user_id', userId).del();
+      await trx('kanban_epics').where('user_id', userId).del();
+      
+      // Insert columns
+      for (let i = 0; i < columns.length; i++) {
+        const column = columns[i];
+        await trx('kanban_columns').insert({
+          user_id: userId,
+          column_id: column.id,
+          title: column.title,
+          order_index: i
+        });
+      }
+      
+      // Recursive function to insert tasks and their subtasks
+      const insertTaskRecursively = async (task, parentId = null, orderIndex = 0) => {
+        const taskType = parentId ? 'subtask' : 'task';
+        
+        await trx('kanban_tasks_new').insert({
+          user_id: userId,
+          task_id: task.id,
+          title: task.title,
+          description: task.description || '',
+          priority: task.priority || 'medium',
+          status: task.status || 'По плану',
+          labels: JSON.stringify(task.labels || []),
+          epic: task.epic || '',
+          parent_id: parentId,
+          due_date: task.dueDate || '',
+          created_at_date: task.createdAt || '',
+          subtasks_expanded: task.subtasksExpanded || false,
+          completed: task.completed || false,
+          task_type: taskType,
+          order_index: orderIndex
+        });
+        
+        // Insert subtasks recursively
+        if (task.subtasks && task.subtasks.length > 0) {
+          for (let i = 0; i < task.subtasks.length; i++) {
+            await insertTaskRecursively(task.subtasks[i], task.id, i);
+          }
+        }
+      };
+      
+      // Insert all tasks recursively
+      for (let i = 0; i < tasks.length; i++) {
+        await insertTaskRecursively(tasks[i], null, i);
+      }
+      
+      // Insert labels
+      for (const label of labels) {
+        await trx('kanban_labels').insert({
+          user_id: userId,
+          name: label.name,
+          color: label.color
+        });
+      }
+      
+      // Insert epics
+      for (const epic of epics) {
+        await trx('kanban_epics').insert({
+          user_id: userId,
+          name: epic.name,
+          color: epic.color
+        });
+      }
+      
+      // Insert task assignments
+      for (const column of columns) {
+        if (column.tasks && column.tasks.length > 0) {
+          for (let i = 0; i < column.tasks.length; i++) {
+            const taskId = column.tasks[i];
+            await trx('kanban_task_assignments').insert({
+              user_id: userId,
+              task_id: taskId,
+              column_id: column.id,
+              order_index: i
+            });
+          }
+        }
+      }
+    });
+    
+    console.log('Kanban data saved successfully for user:', userId);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error saving kanban data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Protected Routes (require authentication)
 
 // Get all available dates
