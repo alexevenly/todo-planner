@@ -35,7 +35,10 @@ class KanbanApp {
         
         // Column controls
         document.getElementById('add-column-btn').addEventListener('click', () => this.openColumnModal());
-        document.getElementById('save-column').addEventListener('click', () => this.saveColumn());
+        document.getElementById('save-column').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.saveColumn();
+        });
         
         // Label controls (handled in setupLabelsDropdown)
         
@@ -535,6 +538,7 @@ class KanbanApp {
     }
 
     saveColumn() {
+        console.log('saveColumn called - current columns:', this.columns.length);
         const title = document.getElementById('column-title').value.trim();
         if (!title) {
             this.showConfirmationModal(
@@ -547,17 +551,21 @@ class KanbanApp {
 
         if (this.currentColumn) {
             // Edit existing column
+            console.log('Editing existing column:', this.currentColumn.title);
             this.currentColumn.title = title;
         } else {
             // Create new column
+            console.log('Creating new column:', title);
             const newColumn = {
                 id: 'column-' + Date.now(),
                 title: title,
                 tasks: []
             };
             this.columns.push(newColumn);
+            console.log('After push - columns count:', this.columns.length);
         }
         
+        console.log('About to save data...');
         this.saveData();
         this.render();
         this.closeColumnModal();
