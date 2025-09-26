@@ -1053,9 +1053,19 @@ app.get('/dates', auth.requireAuth, async (req, res) => {
       return res.status(401).json({ error: 'User not found in request' });
     }
     
+    // Get dates that have meaningful content
     const dates = await db('daily_entries')
       .select('entry_date')
       .where('user_id', req.user.id)
+      .where(function() {
+        this.where('table_content', '!=', '')
+          .where('table_content', 'NOT LIKE', '<!--%-->') // Filter out HTML comments
+          .orWhereExists(function() {
+            this.select('*').from('daily_lists as dl')
+              .whereRaw('dl.daily_entry_id = daily_entries.id')
+              .where('dl.content', '!=', '');
+          });
+      })
       .orderBy('entry_date', 'desc');
       
     const dateStrings = dates.map(row => {
@@ -1067,7 +1077,7 @@ app.get('/dates', auth.requireAuth, async (req, res) => {
       }
     });
     
-    console.log('✅ Returning', dateStrings.length, 'dates');
+    console.log('✅ Returning', dateStrings.length, 'dates with meaningful content');
     res.json(dateStrings);
   } catch (error) {
     console.error('❌ Error fetching dates:', error);
@@ -1185,56 +1195,77 @@ app.post('/save', auth.requireAuth, async (req, res) => {
     const data = req.body;
     const date = data.name.replace('.json', '');
     
+    // Check if there's meaningful data
+    const hasTableContent = data.content?.table && 
+      data.content.table.trim() !== '' && 
+      !data.content.table.match(/^<!--.*-->$/); // Filter out HTML comments
+    
+    const hasListItems = data.content?.lists && Object.values(data.content.lists).some(list => 
+      Array.isArray(list) && list.some(item => item.content && item.content.trim() !== '')
+    );
+    
+    const hasMeaningfulData = hasTableContent || hasListItems;
+    
     // Start transaction
     await db.transaction(async (trx) => {
-      // Upsert daily entry for this user
       const existingEntry = await trx('daily_entries')
         .where('entry_date', date)
         .where('user_id', req.user.id)
         .first();
       
-      let dailyEntryId;
-      if (existingEntry) {
-        await trx('daily_entries')
-          .where('entry_date', date)
-          .where('user_id', req.user.id)
-          .update({
-            table_content: data.content?.table || '',
-            updated_at: new Date()
-          });
-        dailyEntryId = existingEntry.id;
-      } else {
-        const [newEntry] = await trx('daily_entries').insert({
-          entry_date: date,
-          table_content: data.content?.table || '',
-          user_id: req.user.id
-        }).returning('id');
-        dailyEntryId = newEntry.id || newEntry;
-      }
-      
-      // Delete existing list items
-      await trx('daily_lists').where('daily_entry_id', dailyEntryId).del();
-      
-      // Insert new list items
-      const lists = data.content?.lists || {};
-      const listItems = [];
-      
-      ['priorities', 'todo', 'memento'].forEach(listType => {
-        if (lists[listType]) {
-          lists[listType].forEach((item, index) => {
-            listItems.push({
-              daily_entry_id: dailyEntryId,
-              list_type: listType,
-              content: item.content || '',
-              checked: item.checked || false,
-              order_index: index
+      if (hasMeaningfulData) {
+        // Create or update daily entry
+        let dailyEntryId;
+        if (existingEntry) {
+          await trx('daily_entries')
+            .where('entry_date', date)
+            .where('user_id', req.user.id)
+            .update({
+              table_content: data.content?.table || '',
+              updated_at: new Date()
             });
-          });
+          dailyEntryId = existingEntry.id;
+        } else {
+          const [newEntry] = await trx('daily_entries').insert({
+            entry_date: date,
+            table_content: data.content?.table || '',
+            user_id: req.user.id
+          }).returning('id');
+          dailyEntryId = newEntry.id || newEntry;
         }
-      });
-      
-      if (listItems.length > 0) {
-        await trx('daily_lists').insert(listItems);
+        
+        // Delete existing list items
+        await trx('daily_lists').where('daily_entry_id', dailyEntryId).del();
+        
+        // Insert new list items
+        const lists = data.content?.lists || {};
+        const listItems = [];
+        
+        ['priorities', 'todo', 'memento'].forEach(listType => {
+          if (lists[listType]) {
+            lists[listType].forEach((item, index) => {
+              if (item.content && item.content.trim() !== '') {
+                listItems.push({
+                  daily_entry_id: dailyEntryId,
+                  list_type: listType,
+                  content: item.content || '',
+                  checked: item.checked || false,
+                  order_index: index
+                });
+              }
+            });
+          }
+        });
+        
+        if (listItems.length > 0) {
+          await trx('daily_lists').insert(listItems);
+        }
+      } else {
+        // No meaningful data - remove the daily entry if it exists
+        if (existingEntry) {
+          await trx('daily_lists').where('daily_entry_id', existingEntry.id).del();
+          await trx('daily_entries').where('id', existingEntry.id).del();
+        }
       }
     });
     
