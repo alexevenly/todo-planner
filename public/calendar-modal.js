@@ -406,6 +406,10 @@ class CalendarModal {
   }
 
   updateCalendarDayColor(date, colorId) {
+    // If date is not in the right format - YYYY-MM-DD, cut the time part
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      date = date.split('T')[0];
+    }
     // Only search within the modal calendar, not the entire document
     const modal = document.getElementById('calendar-modal');
     const dayElement = modal.querySelector(`[data-date="${date}"]`);
