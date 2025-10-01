@@ -25,6 +25,7 @@ function init() {
 	const timeOverlayHolder = document.querySelector('#time_overlay_holder');
 	const colors = ['#0048BA75', '#B0BF1A75', '#7CB9E875', '#C4621075', '#00A86B75', '#8DB60075', '#9966CC75', '#FF8C0075', '#FFD70075', '#FF7F5075', '#00FFFF75', '#FF6FFF75', '#4B532075', '#DE316375', '#FB607F75'];
 	let notSelectedColors = colors;
+	let editabilityInitialized = false;
 
 	addTimePeriodBtn.addEventListener('click', function() {
 		const fromInput = document.querySelector('#from');
@@ -253,10 +254,15 @@ function init() {
 		  elements[i].style.border = "";
 		  elements[i].contentEditable = false;
 		}
-		save();
+		// Removed automatic save() call to prevent auto-saving empty days
 	}
 
 	function updateEditability(from) {
+		// Allow re-initialization for new content or when explicitly requested
+		if (editabilityInitialized && from !== 'loadContent' && from !== 'addButton (single)') {
+			return;
+		}
+		
 		//elements = document.querySelectorAll("li, td:not(:first-child)");
 		elements = document.querySelectorAll("li span");
 		
@@ -291,6 +297,8 @@ function init() {
 				save();
 			});
 		}
+		
+		editabilityInitialized = true;
 		
 		const deleteButtons = document.querySelectorAll("#time_delete_button");
 		for (let i = 0; i < deleteButtons.length; i++) {
@@ -457,28 +465,34 @@ function init() {
 			});
 	}
 
+	let checklistUpdateTimeout;
+	
 	function updateCheckList() {
-		const mementoItems = document.querySelectorAll("#memento li span");
-		const checklistData = [];
-		
-		mementoItems.forEach((item) => {
-			checklistData.push(item.textContent);
-		});
+		// Debounce multiple calls
+		clearTimeout(checklistUpdateTimeout);
+		checklistUpdateTimeout = setTimeout(() => {
+			const mementoItems = document.querySelectorAll("#memento li span");
+			const checklistData = [];
+			
+			mementoItems.forEach((item) => {
+				checklistData.push(item.textContent);
+			});
 
-		const xhr = new XMLHttpRequest();
-		xhr.open('POST', '/checklist');
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		xhr.onload = function() {
-		  if (xhr.status === 401) {
-			// Redirect to login if unauthorized
-			window.location.href = '/login.html';
-			return;
-		  }
-		  if (xhr.status != 200) {
-			console.error("Checklist update failed!");
-		  }
-		};
-		xhr.send(JSON.stringify(checklistData));
+			const xhr = new XMLHttpRequest();
+			xhr.open('POST', '/checklist');
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.onload = function() {
+			  if (xhr.status === 401) {
+				// Redirect to login if unauthorized
+				window.location.href = '/login.html';
+				return;
+			  }
+			  if (xhr.status != 200) {
+				console.error("Checklist update failed!");
+			  }
+			};
+			xhr.send(JSON.stringify(checklistData));
+		}, 500); // Wait 500ms before actually saving
 	}
 
 	function removeTooltip() {

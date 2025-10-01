@@ -410,6 +410,7 @@ class CalendarModal {
     const modal = document.getElementById('calendar-modal');
     const dayElement = modal.querySelector(`[data-date="${date}"]`);
     console.log(`Looking for element with data-date="${date}" in modal:`, dayElement);
+    console.log(`Available colors:`, this.colors);
     if (dayElement) {
       if (colorId) {
         const color = this.colors.find(c => c.id === parseInt(colorId));
@@ -418,6 +419,8 @@ class CalendarModal {
           dayElement.style.backgroundColor = color.color;
           dayElement.classList.add('colored');
           console.log(`Applied color ${color.color} to date ${date} in modal`);
+        } else {
+          console.error(`Color with ID ${colorId} not found in available colors`);
         }
       } else {
         dayElement.style.backgroundColor = '';
@@ -447,16 +450,19 @@ class CalendarModal {
     try {
       const year = this.currentYear;
       const month = this.currentMonth + 1;
+      console.log(`Loading colored dates for ${year}-${month}`);
       const response = await fetch(`/api/calendar/dates?year=${year}&month=${month}`);
       
       if (response.ok) {
         const dates = await response.json();
+        console.log('Loaded colored dates:', dates);
         this.coloredDates = {};
         dates.forEach(date => {
           this.coloredDates[date.date] = date.color_id;
         });
+        console.log('Processed colored dates:', this.coloredDates);
       } else {
-        console.error('Error loading colored dates');
+        console.error('Error loading colored dates:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error loading colored dates:', error);
@@ -465,11 +471,14 @@ class CalendarModal {
 
   updateCalendarColors() {
     console.log('Updating calendar colors for dates:', Object.keys(this.coloredDates));
-    Object.keys(this.coloredDates).forEach(date => {
-      const colorId = this.coloredDates[date];
-      console.log(`Updating date ${date} with color ID ${colorId}`);
-      this.updateCalendarDayColor(date, colorId);
-    });
+    // Add a small delay to ensure DOM elements are ready
+    setTimeout(() => {
+      Object.keys(this.coloredDates).forEach(date => {
+        const colorId = this.coloredDates[date];
+        console.log(`Updating date ${date} with color ID ${colorId}`);
+        this.updateCalendarDayColor(date, colorId);
+      });
+    }, 100);
   }
 
   renderColorLegend() {

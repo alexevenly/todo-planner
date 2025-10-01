@@ -723,7 +723,10 @@ app.get('/api/calendar/dates', auth.requireAuth, async (req, res) => {
     
     // Get start and end dates for the month
     const startDate = `${year}-${month.padStart(2, '0')}-01`;
-    const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+    // Fix: month is 1-indexed in the query, so we need to use month-1 for 0-indexed Date constructor
+    const endDate = new Date(Date.UTC(Number(year), Number(month), 0)).toISOString().slice(0, 10);
+    
+    console.log(`Calendar API: year=${year}, month=${month}, startDate=${startDate}, endDate=${endDate}`);
     
     const dates = await db('calendar_dates')
       .select('calendar_dates.*', 'calendar_colors.color', 'calendar_colors.description')
@@ -731,6 +734,9 @@ app.get('/api/calendar/dates', auth.requireAuth, async (req, res) => {
       .where('calendar_dates.user_id', req.user.id)
       .whereBetween('calendar_dates.date', [startDate, endDate])
       .orderBy('calendar_dates.date', 'asc');
+    
+    console.log(`Found ${dates.length} dates in range ${startDate} to ${endDate}`);
+    console.log('Dates found:', dates.map(d => d.date));
     
     res.json(dates);
   } catch (error) {
