@@ -357,7 +357,9 @@ button:active {
 }
 
 #continue-button {
-  background: linear-gradient(135deg, var(--danger-color), #dc2626);
+  background: linear-gradient(135deg, var(--danger-color), #dc2626) !important;
+  margin: 10px auto 0px !important;
+  display: block;
 }
 
 /* Container Styles */

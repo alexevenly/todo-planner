@@ -1210,7 +1210,12 @@ app.post('/save', auth.requireAuth, async (req, res) => {
       Array.isArray(list) && list.some(item => item.content && item.content.trim() !== '')
     );
     
-    const hasMeaningfulData = hasTableContent || hasListItems;
+    // Check if there are any checkbox state changes (even with empty content)
+    const hasCheckboxChanges = data.content?.lists && Object.values(data.content.lists).some(list => 
+      Array.isArray(list) && list.some(item => item.checked === true)
+    );
+    
+    const hasMeaningfulData = hasTableContent || hasListItems || hasCheckboxChanges;
     
     // Start transaction
     await db.transaction(async (trx) => {
@@ -1250,7 +1255,8 @@ app.post('/save', auth.requireAuth, async (req, res) => {
         ['priorities', 'todo', 'memento'].forEach(listType => {
           if (lists[listType]) {
             lists[listType].forEach((item, index) => {
-              if (item.content && item.content.trim() !== '') {
+              // Save items that have content OR are checked (checkbox state changes)
+              if ((item.content && item.content.trim() !== '') || item.checked === true) {
                 listItems.push({
                   daily_entry_id: dailyEntryId,
                   list_type: listType,

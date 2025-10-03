@@ -147,8 +147,8 @@ function init() {
 		const filePath = '/data/' + dateString;
 		loadContent(filePath);
 	} else {
-		updateEditability();
 		constructCheckList();
+		// updateEditability will be called by constructCheckList
 	}
 	addButtons();
 
@@ -246,6 +246,12 @@ function init() {
 			const fromInput = document.querySelector('#from');
 			fromInput.value = getCookie('fromDate');
 			updateEditability('loadContent');
+			isSaved = true; // Mark as saved after loading content
+			
+			// Ensure editability is properly initialized after loading
+			setTimeout(() => {
+				updateEditability('loadContent-delayed');
+			}, 100);
 		});
 	}
 
@@ -259,7 +265,7 @@ function init() {
 
 	function updateEditability(from) {
 		// Allow re-initialization for new content or when explicitly requested
-		if (editabilityInitialized && from !== 'loadContent' && from !== 'addButton (single)') {
+		if (editabilityInitialized && from !== 'loadContent' && from !== 'addButton (single)' && from !== 'loadContent-delayed') {
 			return;
 		}
 		
@@ -286,6 +292,8 @@ function init() {
 		const checkboxes = document.querySelectorAll("li input[type='checkbox']");
 		checkboxes.forEach(checkbox => {
 			const newCheckbox = checkbox.cloneNode(true);
+			// Preserve the checked state when cloning
+			newCheckbox.checked = checkbox.checked;
 			checkbox.parentNode.replaceChild(newCheckbox, checkbox);
 		});
 		
@@ -459,6 +467,7 @@ function init() {
 					mementoList.appendChild(listItem);
 				});
 				updateEditability('constructCheckList');
+				isSaved = true; // Mark as saved after constructing checklist
 			})
 			.catch((error) => {
 				console.error("Error fetching checklist:", error);
