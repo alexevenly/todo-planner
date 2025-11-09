@@ -1314,6 +1314,11 @@ app.get('/register.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
+// Style page (public)
+app.get('/style', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'style.html'));
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

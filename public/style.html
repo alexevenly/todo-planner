@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STYLE - Personal Stylist</title>
+    <link rel="stylesheet" href="style-page.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-image-container">
+            <img src="images/open_image_horizontal.jpg" alt="Style Hero" class="hero-image">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">STYLE</h1>
+        </div>
+    </section>
+
+    <!-- Motivational Phrases Section -->
+    <section class="phrases-section">
+        <div class="phrases-background">
+            <img src="images/open_image_vertical.jpg" alt="Style Background" class="phrases-bg-image">
+            <div class="phrases-overlay"></div>
+        </div>
+        <div class="phrases-content">
+            <div class="phrase phrase-1" data-scroll>
+                <p class="phrase-text"><i>Style</i> is not for everyone</p>
+            </div>
+            <div class="phrase phrase-2" data-scroll>
+                <p class="phrase-text">It's more about <i><b>person</b></i> than <i>cloth</i></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Close-up Elements Section -->
+    <section class="elements-section">
+        <div class="element-item" data-scroll>
+            <div class="element-image-wrapper">
+                <img src="images/close_up_boots.jpg" alt="Boots" class="element-image">
+                <div class="element-gradient"></div>
+            </div>
+            <div class="element-content">
+                <p class="element-affirmation">Every step tells a story</p>
+            </div>
+        </div>
+
+        <div class="element-item" data-scroll>
+            <div class="element-image-wrapper">
+                <img src="images/close_up_hair.jpg" alt="Hair" class="element-image">
+                <div class="element-gradient"></div>
+            </div>
+            <div class="element-content">
+                <p class="element-affirmation">Your crown speaks before you do</p>
+            </div>
+        </div>
+
+        <div class="element-item" data-scroll>
+            <div class="element-image-wrapper">
+                <img src="images/close_up_pockets.jpg" alt="Pockets" class="element-image">
+                <div class="element-gradient"></div>
+            </div>
+            <div class="element-content">
+                <p class="element-affirmation">Details define the difference</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Images Carousel Section -->
+    <section class="shop-section" data-scroll>
+        <div class="carousel-container">
+            <div class="carousel-wrapper">
+                <div class="carousel-track">
+                    <div class="shop-item" data-index="0">
+                        <div class="shop-image-wrapper">
+                            <img src="images/main_1.jpg" alt="Look 1" class="shop-image">
+                            <div class="shop-gradient"></div>
+                            <!--div class="shop-dots">
+                                <div class="dot dot-1" data-shop="https://example.com/shop1">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Jacket</div>
+                                </div>
+                                <div class="dot dot-2" data-shop="https://example.com/shop2">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Hoodie</div>
+                                </div>
+                                <div class="dot dot-3" data-shop="https://example.com/shop3">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Leggings</div>
+                                </div>
+                                <div class="dot dot-4" data-shop="https://example.com/shop4">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Shoes</div>
+                                </div>
+                            </!--div-->
+                        </div>
+                    </div>
+                    <div class="shop-item" data-index="1">
+                        <div class="shop-image-wrapper">
+                            <img src="images/main_2.jpg" alt="Look 2" class="shop-image">
+                            <div class="shop-gradient"></div>
+                            <!--div class="shop-dots">
+                                <div class="dot dot-1" data-shop="https://example.com/shop1">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Jacket</div>
+                                </div>
+                                <div class="dot dot-2" data-shop="https://example.com/shop2">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Hoodie</div>
+                                </div>
+                                <div class="dot dot-3" data-shop="https://example.com/shop3">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Leggings</div>
+                                </div>
+                                <div class="dot dot-4" data-shop="https://example.com/shop4">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Shoes</div>
+                                </div>
+                            </!--div-->
+                        </div>
+                    </div>
+                    <div class="shop-item active" data-index="2">
+                        <div class="shop-image-wrapper">
+                            <img src="images/main_3.jpg" alt="Look 3" class="shop-image">
+                            <div class="shop-gradient"></div>
+                            <!--div class="shop-dots">
+                                <div class="dot dot-1" data-shop="https://example.com/shop1">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Jacket</div>
+                                </div>
+                                <div class="dot dot-2" data-shop="https://example.com/shop2">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Hoodie</div>
+                                </div>
+                                <div class="dot dot-3" data-shop="https://example.com/shop3">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Leggings</div>
+                                </div>
+                                <div class="dot dot-4" data-shop="https://example.com/shop4">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Shoes</div>
+                                </div>
+                            </!--div-->
+                        </div>
+                    </div>
+                    <div class="shop-item" data-index="3">
+                        <div class="shop-image-wrapper">
+                            <img src="images/main_4.jpg" alt="Look 4" class="shop-image">
+                            <div class="shop-gradient"></div>
+                            <!--div-- class="shop-dots">
+                                <div class="dot dot-1" data-shop="https://example.com/shop1">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Jacket</div>
+                                </div>
+                                <div class="dot dot-2" data-shop="https://example.com/shop2">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Hoodie</div>
+                                </div>
+                                <div class="dot dot-3" data-shop="https://example.com/shop3">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Leggings</div>
+                                </div>
+                                <div class="dot dot-4" data-shop="https://example.com/shop4">
+                                    <div class="dot-pulse"></div>
+                                    <div class="dot-tooltip">Shop Shoes</div>
+                                </div>
+                            </!--div-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-arrow carousel-arrow-left" aria-label="Previous">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <button class="carousel-arrow carousel-arrow-right" aria-label="Next">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <script src="style-page.js"></script>
+</body>
+</html>
+

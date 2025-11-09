@@ -1,0 +1,570 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow-x: hidden;
+    background: #000;
+    color: #fff;
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-image-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4) contrast(1.1);
+    transform: scale(1.1);
+    transition: transform 0.8s ease-out;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.6) 100%
+    );
+    z-index: 2;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+}
+
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 12vw, 12rem);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: #fff;
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.3), 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: fadeInUp 1.2s ease-out;
+    transition: opacity 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Motivational Phrases Section */
+.phrases-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 20px;
+    overflow: hidden;
+}
+
+.phrases-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.phrases-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.3) blur(2px);
+    transform: scale(1.1);
+}
+
+.phrases-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.7) 0%,
+        rgba(0, 0, 0, 0.5) 50%,
+        rgba(0, 0, 0, 0.7) 100%
+    );
+    z-index: 2;
+}
+
+.phrases-content {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+}
+
+.phrase {
+    text-align: center;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 1s ease-out, transform 1s ease-out;
+}
+
+.phrase.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.phrase-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    color: #fff;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+    line-height: 1.3;
+}
+
+/* Elements Section */
+.elements-section {
+    padding: 150px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.element-item {
+    position: relative;
+    opacity: 0;
+    transform: scale(0.9) translateY(50px);
+    transition: opacity 1s ease-out, transform 1s ease-out;
+}
+
+.element-item.visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+.element-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.element-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.2);
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.element-image-wrapper:hover .element-image {
+    transform: scale(1.4);
+}
+
+.element-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.5) 0%,
+        rgba(0, 0, 0, 0.15) 40%,
+        rgba(0, 0, 0, 0.15) 60%,
+        rgba(0, 0, 0, 0.7) 100%
+    );
+    z-index: 2;
+    transition: opacity 0.8s ease;
+}
+
+.element-image-wrapper:hover .element-gradient {
+    opacity: 0.5;
+}
+
+.element-content {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    right: 30px;
+    z-index: 3;
+}
+
+.element-affirmation {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 255, 255, 0.2);
+    line-height: 1.2;
+    transition: transform 0.3s ease;
+}
+
+.element-item:hover .element-affirmation {
+    transform: translateY(-5px);
+}
+
+/* Shop Section - Carousel */
+.shop-section {
+    position: relative;
+    width: 60vw;
+    margin: 0 auto;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.carousel-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.shop-item {
+    position: relative;
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.8s ease, filter 0.8s ease;
+    opacity: 0.3;
+    filter: brightness(0.4);
+    pointer-events: none;
+}
+
+.shop-item.active {
+    opacity: 1;
+    filter: brightness(0.85) contrast(1.1);
+    pointer-events: auto;
+}
+
+.shop-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shop-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shop-item.active .shop-image-wrapper:hover .shop-image {
+    transform: scale(1.01);
+}
+
+.shop-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.3) 0%,
+        rgba(0, 0, 0, 0.05) 30%,
+        rgba(0, 0, 0, 0.05) 70%,
+        rgba(0, 0, 0, 0.4) 100%
+    );
+    z-index: 2;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+}
+
+.shop-image-wrapper:hover .shop-gradient {
+    opacity: 0.6;
+}
+
+.shop-dots {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    display: none;
+}
+
+.shop-item.active .shop-dots {
+    display: block;
+}
+
+.dot {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7), 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    z-index: 4;
+}
+
+.dot:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+    background: #fff;
+    box-shadow: 0 0 0 12px rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.4);
+    border-color: #fff;
+}
+
+.dot-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+    }
+}
+
+.dot-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px);
+    margin-bottom: 15px;
+    padding: 10px 18px;
+    background: rgba(0, 0, 0, 0.95);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.dot:hover .dot-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.dot-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.95);
+}
+
+/* Carousel Arrows - поверх затемнения */
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.carousel-arrow:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-50%) scale(1.15);
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+}
+
+.carousel-arrow:active {
+    transform: translateY(-50%) scale(1.05);
+}
+
+.carousel-arrow svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 3;
+}
+
+.carousel-arrow-left {
+    left: 2%;
+}
+
+.carousel-arrow-right {
+    right: 2%;
+}
+
+/* Fade masks for side images - 10% on each side */
+.carousel-container::before,
+.carousel-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 10%;
+    height: 100%;
+    z-index: 6;
+    pointer-events: none;
+}
+
+.carousel-container::before {
+    left: 0;
+    background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(0, 0, 0, 0.8) 30%,
+        rgba(0, 0, 0, 0.4) 70%,
+        transparent 100%
+    );
+}
+
+.carousel-container::after {
+    right: 0;
+    background: linear-gradient(
+        to left,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(0, 0, 0, 0.8) 30%,
+        rgba(0, 0, 0, 0.4) 70%,
+        transparent 100%
+    );
+}
+
+/* Dot positions - only for active item */
+.shop-item.active .dot-1 { top: 26%; left: 46%; } /* Jacket */
+.shop-item.active .dot-2 { top: 33%; left: 51%; } /* Hoodie */
+.shop-item.active .dot-3 { top: 66%; left: 49%; } /* Leggings */
+.shop-item.active .dot-4 { top: 86%; left: 43%; } /* Shoes */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 4rem;
+    }
+
+    .phrase-text {
+        font-size: 2rem;
+    }
+
+    .elements-section {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 80px 20px;
+    }
+
+    .carousel-arrow {
+        width: 55px;
+        height: 55px;
+    }
+
+    .carousel-arrow svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .carousel-arrow-left {
+        left: 1%;
+    }
+
+    .carousel-arrow-right {
+        right: 1%;
+    }
+
+    .element-image-wrapper {
+        height: 400px;
+    }
+}
+
